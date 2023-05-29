@@ -1,0 +1,6 @@
+src
+*.la
+*.pc
+.DS_Store
+*.pc-e
+*.cmake
