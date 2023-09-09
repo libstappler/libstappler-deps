@@ -22,27 +22,12 @@
 
 LIBNAME = brotli
 
-CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX)
-
 all:
 	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); \
-		$(LIB_SRC_DIR)/$(LIBNAME)/configure-cmake $(CONFIGURE); \
-		make -j8; \
-		make install
+	cd $(LIBNAME); cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(PREFIX) -DBUILD_SHARED_LIBS=OFF $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); cmake  --build . --config Release --target install
 	sed -i -e 's/ -lbrotlidec/ -lbrotlidec -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlidec.pc
 	sed -i -e 's/ -lbrotlienc/ -lbrotlienc -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlienc.pc
-	rm $(PREFIX)/lib/libbrotli*.so $(PREFIX)/lib/libbrotli*.so.*
-	mv -f $(PREFIX)/lib/libbrotlienc-static.a $(PREFIX)/lib/libbrotlienc.a
-	mv -f $(PREFIX)/lib/libbrotlidec-static.a $(PREFIX)/lib/libbrotlidec.a
-	mv -f $(PREFIX)/lib/libbrotlicommon-static.a $(PREFIX)/lib/libbrotlicommon.a
 	rm -rf $(LIBNAME)
 
 .PHONY: all

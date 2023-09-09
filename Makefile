@@ -39,87 +39,89 @@ clean:
 
 $(SRC_ROOT)/jpeg:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) http://www.ijg.org/files/jpegsrc.v9e.tar.gz # revised: 21 may 2023
-	$(TAR_XF) jpegsrc.v9e.tar.gz
-	rm jpegsrc.v9e.tar.gz
-	mv jpeg-9e $(SRC_ROOT)/jpeg
+	cd $(SRC_ROOT); $(WGET) http://www.ijg.org/files/jpegsrc.v9e.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) jpegsrc.v9e.tar.gz
+	rm $(SRC_ROOT)/jpegsrc.v9e.tar.gz
+	mv $(SRC_ROOT)/jpeg-9e $(SRC_ROOT)/jpeg
 
 $(SRC_ROOT)/libpng:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) http://prdownloads.sourceforge.net/libpng/libpng-1.6.39.tar.gz # revised: 21 may 2023
-	$(TAR_XF) libpng-1.6.39.tar.gz
-	rm libpng-1.6.39.tar.gz
-	mv libpng-1.6.39 $(SRC_ROOT)/libpng
+	cd $(SRC_ROOT); $(WGET) http://prdownloads.sourceforge.net/libpng/libpng-1.6.40.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) libpng-1.6.40.tar.gz
+	rm $(SRC_ROOT)/libpng-1.6.40.tar.gz
+	mv $(SRC_ROOT)/libpng-1.6.40 $(SRC_ROOT)/libpng
 
 $(SRC_ROOT)/giflib:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://sourceforge.net/projects/giflib/files/giflib-5.2.1.tar.gz # revised: 21 may 2023
-	$(TAR_XF) giflib-5.2.1.tar.gz
-	rm giflib-5.2.1.tar.gz
-	mv giflib-5.2.1 $(SRC_ROOT)/giflib
+	cd $(SRC_ROOT); $(WGET) https://sourceforge.net/projects/giflib/files/giflib-5.2.1.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) giflib-5.2.1.tar.gz
+	rm $(SRC_ROOT)/giflib-5.2.1.tar.gz
+	mv $(SRC_ROOT)/giflib-5.2.1 $(SRC_ROOT)/giflib
 
 $(SRC_ROOT)/libwebp:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.0.tar.gz # revised: 21 may 2023
-	$(TAR_XF) libwebp-1.3.0.tar.gz
-	rm libwebp-1.3.0.tar.gz
-	mv libwebp-1.3.0 $(SRC_ROOT)/libwebp
+	cd $(SRC_ROOT); $(WGET) https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.1.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) libwebp-1.3.1.tar.gz
+	rm $(SRC_ROOT)/libwebp-1.3.1.tar.gz
+	mv $(SRC_ROOT)/libwebp-1.3.1 $(SRC_ROOT)/libwebp
 
 $(SRC_ROOT)/brotli:
 	@$(MKDIR) $(SRC_ROOT)
-	git clone https://github.com/google/brotli.git  --branch v1.0.9 --single-branch --depth 1 $(SRC_ROOT)/brotli # revised: 21 may 2023
-	cd $(SRC_ROOT)/brotli; ./bootstrap
+	cd $(SRC_ROOT); $(WGET) https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) v1.1.0.tar.gz
+	rm $(SRC_ROOT)/v1.1.0.tar.gz
+	mv $(SRC_ROOT)/brotli-1.1.0 $(SRC_ROOT)/brotli
 
 $(SRC_ROOT)/mbedtls:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.4.0.tar.gz # revised: 21 may 2023
-	$(TAR_XF) v3.4.0.tar.gz
-	rm v3.4.0.tar.gz
-	mv mbedtls-3.4.0 $(SRC_ROOT)/mbedtls
+	cd $(SRC_ROOT); $(WGET) https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.4.1.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) v3.4.1.tar.gz
+	rm $(SRC_ROOT)/v3.4.1.tar.gz
+	mv $(SRC_ROOT)/mbedtls-3.4.1 $(SRC_ROOT)/mbedtls
 
 $(SRC_ROOT)/curl:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://curl.se/download/curl-8.1.0.tar.bz2 # revised: 21 may 2023
-	$(TAR_XF) curl-8.1.0.tar.bz2
-	rm curl-8.1.0.tar.bz2
-	mv curl-8.1.0 $(SRC_ROOT)/curl
+	cd $(SRC_ROOT); $(WGET) https://curl.se/download/curl-8.2.1.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) curl-8.2.1.tar.gz
+	rm $(SRC_ROOT)/curl-8.2.1.tar.gz
+	mv $(SRC_ROOT)/curl-8.2.1 $(SRC_ROOT)/curl
 
 $(SRC_ROOT)/freetype:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://mirrors.sarata.com/non-gnu/freetype/freetype-2.13.0.tar.xz # revised: 21 may 2023
-	$(TAR_XF) freetype-2.13.0.tar.xz
-	rm freetype-2.13.0.tar.xz
-	mv freetype-2.13.0 $(SRC_ROOT)/freetype
+	cd $(SRC_ROOT); $(WGET) https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) freetype-2.13.2.tar.gz
+	rm $(SRC_ROOT)/freetype-2.13.2.tar.gz
+	mv $(SRC_ROOT)/freetype-2.13.2 $(SRC_ROOT)/freetype
 
 $(SRC_ROOT)/sqlite:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://www.sqlite.org/2023/sqlite-amalgamation-3420000.zip # revised: 21 may 2023
-	unzip sqlite-amalgamation-3420000.zip -d .
-	rm sqlite-amalgamation-3420000.zip
-	mv sqlite-amalgamation-3420000 $(SRC_ROOT)/sqlite
+	cd $(SRC_ROOT); $(WGET) https://www.sqlite.org/2023/sqlite-amalgamation-3430000.zip # revised: 10 sep 2023
+	cd $(SRC_ROOT); unzip sqlite-amalgamation-3430000.zip -d .
+	rm $(SRC_ROOT)/sqlite-amalgamation-3430000.zip
+	mv $(SRC_ROOT)/sqlite-amalgamation-3430000 $(SRC_ROOT)/sqlite
 
 $(SRC_ROOT)/libuidna:
 	@$(MKDIR) $(SRC_ROOT)
-	git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 21 may 2023
+	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 10 sep 2023
 
 $(SRC_ROOT)/libbacktrace:
 	@$(MKDIR) $(SRC_ROOT)
-	git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 21 may 2023
+	cd $(SRC_ROOT); git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 10 sep 2023
 
 $(SRC_ROOT)/libzip:
 	@$(MKDIR) $(SRC_ROOT)
-	wget https://github.com/nih-at/libzip/releases/download/v1.9.2/libzip-1.9.2.tar.gz # revised: 21 may 2023
-	$(TAR_XF) libzip-1.9.2.tar.gz
-	rm libzip-1.9.2.tar.gz
-	mv libzip-1.9.2 $(SRC_ROOT)/libzip
-	sed -i -e 's/mbedtls\/version.h/mbedtls\/build_info.h/g' $(SRC_ROOT)/libzip/cmake/FindMbedTLS.cmake
+	cd $(SRC_ROOT); wget https://libzip.org/download/libzip-1.10.1.tar.gz # revised: 21 may 2023
+	cd $(SRC_ROOT); $(TAR_XF) libzip-1.10.1.tar.gz
+	rm $(SRC_ROOT)/libzip-1.10.1.tar.gz
+	mv $(SRC_ROOT)/libzip-1.10.1 $(SRC_ROOT)/libzip
+#	sed -i -e 's/mbedtls\/version.h/mbedtls\/build_info.h/g' $(SRC_ROOT)/libzip/cmake/FindMbedTLS.cmake
 
 $(SRC_ROOT)/zlib:
 	@$(MKDIR) $(SRC_ROOT)
-	wget https://github.com/madler/zlib/releases/download/v1.2.13/zlib-1.2.13.tar.gz # revised: 21 may 2023
-	$(TAR_XF) zlib-1.2.13.tar.gz
-	rm zlib-1.2.13.tar.gz
-	mv zlib-1.2.13 $(SRC_ROOT)/zlib
+	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.tar.gz # revised: 21 may 2023
+	cd $(SRC_ROOT); $(TAR_XF) zlib-1.3.tar.gz
+	rm $(SRC_ROOT)/zlib-1.3.tar.gz
+	mv $(SRC_ROOT)/zlib-1.3 $(SRC_ROOT)/zlib
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)
