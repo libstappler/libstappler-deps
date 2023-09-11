@@ -20,6 +20,8 @@
 
 .DEFAULT_GOAL := all
 
+VARIANT ?= mbedtls
+
 LIBNAME = libzip
 
 PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
@@ -32,10 +34,6 @@ PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
 
 CONFIGURE := \
 	-DBUILD_SHARED_LIBS=OFF \
-	-DMbedTLS_LIBRARY=$(PREFIX)/lib/libmbedtls.a -DMbedTLS_INCLUDE_DIR=$(PREFIX)/include \
-	-DENABLE_GNUTLS=OFF \
-	-DENABLE_COMMONCRYPTO=OFF \
-	-DENABLE_OPENSSL=OFF \
 	-DENABLE_BZIP2=OFF \
 	-DENABLE_LZMA=OFF \
 	-DENABLE_ZSTD=OFF \
@@ -46,9 +44,28 @@ CONFIGURE := \
 	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
 	-DZLIB_LIBRARY="-lz"
 
+ifeq ($(VARIANT),mbedtls)
+CONFIGURE += \
+	-DMbedTLS_LIBRARY=$(PREFIX)/lib/libmbedtls.a -DMbedTLS_INCLUDE_DIR=$(PREFIX)/include \
+	-DENABLE_GNUTLS=OFF \
+	-DENABLE_COMMONCRYPTO=OFF \
+	-DENABLE_OPENSSL=OFF
+endif
+
+ifeq ($(VARIANT),openssl)
+CONFIGURE += \
+	-DENABLE_MBEDTLS=OFF \
+	-DENABLE_GNUTLS=OFF \
+	-DENABLE_COMMONCRYPTO=OFF \
+	-DENABLE_OPENSSL=ON \
+	-DOPENSSL_ROOT_DIR=$(PREFIX) \
+	-DOpenSSL_LIBRARY=$(PREFIX)/lib/libcrypto.a -DOpenSSL_INCLUDE_DIR=$(PREFIX)/include
+endif
+
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
 		$(PRE_CONFIGURE) cmake $(LIB_SRC_DIR)/$(LIBNAME) $(CONFIGURE); \
 		make; make install
+	mv -f $(PREFIX)/lib/libzip.a $(PREFIX)/lib/libzip-$(VARIANT).a
 	rm -rf $(LIBNAME)

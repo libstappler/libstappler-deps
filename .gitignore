@@ -4,3 +4,4 @@ src
 .DS_Store
 *.pc-e
 *.cmake
+**/bin

@@ -30,7 +30,7 @@ WGET = wget
 MKDIR = mkdir -p
 TAR_XF = tar -xf
 
-LIBS = jpeg libpng giflib libwebp brotli curl freetype sqlite libuidna libbacktrace mbedtls libzip zlib
+LIBS = jpeg libpng giflib libwebp brotli curl freetype sqlite libuidna libbacktrace mbedtls libzip zlib openssl openssl-gost-engine
 
 all: $(addprefix $(SRC_ROOT)/,$(LIBS))
 
@@ -110,18 +110,28 @@ $(SRC_ROOT)/libbacktrace:
 
 $(SRC_ROOT)/libzip:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://libzip.org/download/libzip-1.10.1.tar.gz # revised: 21 may 2023
+	cd $(SRC_ROOT); wget https://libzip.org/download/libzip-1.10.1.tar.gz # revised: 10 sep 2023
 	cd $(SRC_ROOT); $(TAR_XF) libzip-1.10.1.tar.gz
 	rm $(SRC_ROOT)/libzip-1.10.1.tar.gz
 	mv $(SRC_ROOT)/libzip-1.10.1 $(SRC_ROOT)/libzip
-#	sed -i -e 's/mbedtls\/version.h/mbedtls\/build_info.h/g' $(SRC_ROOT)/libzip/cmake/FindMbedTLS.cmake
 
 $(SRC_ROOT)/zlib:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.tar.gz # revised: 21 may 2023
+	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.tar.gz # revised: 10 sep 2023
 	cd $(SRC_ROOT); $(TAR_XF) zlib-1.3.tar.gz
 	rm $(SRC_ROOT)/zlib-1.3.tar.gz
 	mv $(SRC_ROOT)/zlib-1.3 $(SRC_ROOT)/zlib
+
+$(SRC_ROOT)/openssl:
+	@$(MKDIR) $(SRC_ROOT)
+	cd $(SRC_ROOT); wget https://www.openssl.org/source/openssl-3.1.2.tar.gz # revised: 10 sep 2023
+	cd $(SRC_ROOT); $(TAR_XF) openssl-3.1.2.tar.gz
+	rm $(SRC_ROOT)/openssl-3.1.2.tar.gz
+	mv $(SRC_ROOT)/openssl-3.1.2 $(SRC_ROOT)/openssl
+
+$(SRC_ROOT)/openssl-gost-engine:
+	@$(MKDIR) $(SRC_ROOT)
+	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.2 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 sep 2023
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)

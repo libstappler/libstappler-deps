@@ -46,8 +46,12 @@ LIBS := \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
-	libcurl.a \
-	libzip.a
+	libssl.a \
+	libcurl-mbedtls.a \
+	libcurl-openssl.a \
+	libzip-mbedtls.a \
+	libzip-openssl.a \
+	libgost.a
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
@@ -93,8 +97,8 @@ $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 # HTTP3 temporary disabled for android
 # waiting for proper library, that can be build automatically
 
-#$(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
-#	$(MAKE) -f $(MAKE_ROOT)openssl.mk $(FORWARD_VARS)
+$(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
+	$(MAKE) -f $(MAKE_ROOT)openssl.mk $(FORWARD_VARS)
 
 #$(PREFIX)/lib/libnghttp3.a: $(MAKE_ROOT)nghttp3.mk
 #	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
@@ -105,11 +109,20 @@ $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libcurl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
-	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS)
+$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
-$(PREFIX)/lib/libzip.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libmbedtls.a
-	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS)
+$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
+
+$(PREFIX)/lib/libzip-mbedtls.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libmbedtls.a
+	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=mbedtls
+
+$(PREFIX)/lib/libzip-openssl.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libssl.a
+	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=openssl
+
+$(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
+	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
 .PHONY: all
 

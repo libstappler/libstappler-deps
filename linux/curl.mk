@@ -20,6 +20,8 @@
 
 .DEFAULT_GOAL := all
 
+VARIANT ?= mbedtls
+
 LIBNAME = curl
 
 CONFIGURE := \
@@ -35,16 +37,23 @@ CONFIGURE := \
 	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
 	--prefix=$(PREFIX) \
 	--enable-optimize \
-	--disable-warnings \
-	--disable-curldebug \
-	--disable-debug \
 	--enable-symbol-hiding \
-	--disable-dependency-tracking \
 	--enable-http \
 	--enable-ftp \
 	--enable-file \
 	--enable-smtp \
 	--enable-proxy \
+	--enable-ipv6 \
+	--enable-unix-sockets \
+	--enable-cookies \
+	--enable-shared=no \
+	--enable-static=yes \
+	--enable-pthreads \
+	--enable-websockets \
+	--disable-warnings \
+	--disable-curldebug \
+	--disable-debug \
+	--disable-dependency-tracking \
 	--disable-ldap \
 	--disable-ldaps \
 	--disable-rtsp \
@@ -58,28 +67,39 @@ CONFIGURE := \
 	--disable-manual \
 	--disable-rtmp \
 	--disable-ntlm \
-	--enable-ipv6 \
 	--disable-versioned-symbols \
-	--enable-unix-sockets \
 	--disable-verbose  \
 	--disable-sspi \
-	--disable-ntlm-wb  \
-	--enable-cookies \
-	--enable-shared=no \
-	--enable-static=yes \
-	--enable-pthreads \
+	--disable-ntlm-wb \
 	--with-zlib \
-	--with-mbedtls \
 	--with-brotli \
 	--with-libidn2 \
-	--without-openssl \
-	--with-ngtcp2 \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
 	--without-nghttp3 \
-	--without-ngtcp2 \
-	--enable-websockets
+	--without-ngtcp2
+
+ifeq ($(VARIANT),mbedtls)
+CONFIGURE += \
+	--with-mbedtls \
+	--without-openssl \
+	--without-gnutls
+endif
+
+ifeq ($(VARIANT),openssl)
+CONFIGURE += \
+	--without-mbedtls \
+	--with-openssl \
+	--without-gnutls
+endif
+
+ifeq ($(VARIANT),gnutls)
+CONFIGURE += \
+	--without-mbedtls \
+	--without-openssl \
+	--with-gnutls
+endif
 
 all:
 	@mkdir -p $(LIBNAME)
@@ -87,6 +107,7 @@ all:
 		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
 		make -j8; \
 		make install
+	mv -f $(PREFIX)/lib/libcurl.a $(PREFIX)/lib/libcurl-$(VARIANT).a
 	rm -rf $(LIBNAME)
 
 .PHONY: all

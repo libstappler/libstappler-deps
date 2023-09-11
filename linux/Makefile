@@ -42,10 +42,16 @@ LIBS := \
 	libbacktrace.a \
 	libsqlite3.a \
 	libidn2.a \
-	libcurl.a \
+	libcurl-openssl.a \
+	libcurl-mbedtls.a \
+	libcurl-gnutls.a \
 	libmbedtls.a \
 	libz.a \
-	libzip.a
+	libzip-openssl.a \
+	libzip-mbedtls.a \
+	libzip-gnutls.a \
+	libssl.a \
+	libgost.a
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
@@ -84,17 +90,35 @@ $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libcurl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
-	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS)
+$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
+
+$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
+
+$(PREFIX)/lib/libcurl-gnutls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=gnutls
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libzip.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libmbedtls.a
-	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS)
+$(PREFIX)/lib/libzip-openssl.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libssl.a
+	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=openssl
+
+$(PREFIX)/lib/libzip-mbedtls.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libmbedtls.a
+	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=mbedtls
+
+$(PREFIX)/lib/libzip-gnutls.a: $(MAKE_ROOT)libzip.mk
+	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=gnutls
 
 $(PREFIX)/lib/libz.a: $(MAKE_ROOT)zlib.mk
 	$(MAKE) -f $(MAKE_ROOT)zlib.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
+	$(MAKE) -f $(MAKE_ROOT)openssl.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
+	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
 .PHONY: all
 
