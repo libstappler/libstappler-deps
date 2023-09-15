@@ -35,6 +35,8 @@ all:
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
+	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
+	
 
 else
 
@@ -46,6 +48,7 @@ all:
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
+	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
 	rm -rf $(LIBNAME)
 
 endif
