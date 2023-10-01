@@ -5,3 +5,5 @@ src
 *.pc-e
 *.cmake
 **/bin
+**/share
+xwin

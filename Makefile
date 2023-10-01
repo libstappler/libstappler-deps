@@ -132,13 +132,14 @@ $(SRC_ROOT)/openssl:
 $(SRC_ROOT)/openssl-gost-engine:
 	@$(MKDIR) $(SRC_ROOT)
 	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.2 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 sep 2023
+	cp -f replacements/openssl-gost-engine/CMakeLists.txt $(SRC_ROOT)/openssl-gost-engine
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://github.com/Jake-Shadle/xwin/releases/download/0.2.1/xwin-0.2.1-x86_64-unknown-linux-musl.tar.gz
-	$(TAR_XF) xwin-0.2.1-x86_64-unknown-linux-musl.tar.gz
-	rm xwin-0.2.1-x86_64-unknown-linux-musl.tar.gz
-	mv xwin-0.2.1-x86_64-unknown-linux-musl xwin
+	$(WGET) https://github.com/Jake-Shadle/xwin/releases/download/0.3.1/xwin-0.3.1-x86_64-unknown-linux-musl.tar.gz
+	$(TAR_XF) xwin-0.3.1-x86_64-unknown-linux-musl.tar.gz
+	rm xwin-0.3.1-x86_64-unknown-linux-musl.tar.gz
+	mv xwin-0.3.1-x86_64-unknown-linux-musl xwin
 	cd xwin; ./xwin --accept-license unpack; ./xwin --accept-license splat
 	mv xwin/.xwin-cache/splat xwin/splat
 

@@ -61,11 +61,6 @@ all:
 		make -j8; \
 		make install_sw
 	rm -rf $(LIBNAME)
-#	mv -f $(PREFIX)/lib64/libssl.a $(PREFIX)/lib/libssl.a 
-#	mv -f $(PREFIX)/lib64/libcrypto.a $(PREFIX)/lib/libcrypto.a 
-#	mv -f $(PREFIX)/lib64/pkgconfig/libssl.pc $(PREFIX)/lib/pkgconfig/libssl.pc
-#	mv -f $(PREFIX)/lib64/pkgconfig/libcrypto.pc $(PREFIX)/lib/pkgconfig/libcrypto.pc
-#	rm -rf $(PREFIX)/lib64 $(PREFIX)/bin/c_rehash
 	sed -i -e 's/ -lssl/ -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
 
 .PHONY: all

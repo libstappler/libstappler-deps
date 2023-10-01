@@ -79,7 +79,9 @@ CONFIGURE := \
 	--without-libssh2 \
 	--without-librtmp \
 	--without-nghttp3 \
-	--without-ngtcp2
+	--without-ngtcp2 \
+	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem) \
+	--without-ca-path
 
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \
