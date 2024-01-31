@@ -31,7 +31,7 @@ all:
 	cp -r $(LIB_SRC_DIR)/$(LIBNAME) $(LIBNAME)
 	cd $(LIBNAME); \
 		cmake -DCMAKE_BUILD_TYPE=Debug -DOPENSSL_USE_STATIC_LIBS=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE \
-			-DOPENSSL_ROOT_DIR=$(PREFIX) .; \
+			-DOPENSSL_ROOT_DIR=$(PREFIX) -DCMAKE_C_FLAGS_INIT=-fPIC .; \
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
@@ -44,7 +44,7 @@ all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
 		cmake -DCMAKE_BUILD_TYPE=Release -DOPENSSL_USE_STATIC_LIBS=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE \
-			-DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
+			-DOPENSSL_ROOT_DIR=$(PREFIX) -DCMAKE_C_FLAGS_INIT=-fPIC $(LIB_SRC_DIR)/$(LIBNAME); \
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
