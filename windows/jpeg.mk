@@ -23,7 +23,8 @@
 LIBNAME = jpeg
 
 WARN := -Wno-ignored-attributes -Wno-deprecated-declarations
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -D_MT
+CPPFLAGS := --target=$(TARGET) $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include -D_MT
+CFLAGS := $(WARN)
 LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
 
 ifdef RELEASE
@@ -37,8 +38,8 @@ endif
 CONFIGURE := \
 	CC=$(CC) CXX=$(CXX) \
 	CFLAGS="" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="$(CFLAGS)" \
+	CPP="$(CC) -E --target=$(TARGET)" \
+	CPPFLAGS="$(CPPFLAGS)" \
 	LDFLAGS="$(LDFLAGS)" \
 	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
 	--host=$(ARCH)-windows \

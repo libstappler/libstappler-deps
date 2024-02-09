@@ -11,7 +11,7 @@
 
 # Modeled after libxml-config.
 
-version="1.6.40"
+version="1.6.42"
 prefix="/home/sbkarr/stappler/libstappler-root/deps/android/x86_64"
 exec_prefix="${prefix}"
 libdir="/home/sbkarr/stappler/libstappler-root/deps/android/x86_64/lib"

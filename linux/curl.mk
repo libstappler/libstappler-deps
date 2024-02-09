@@ -74,11 +74,13 @@ CONFIGURE := \
 	--with-zlib \
 	--with-brotli \
 	--with-libidn2 \
+	--without-libpsl \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
 	--without-nghttp3 \
-	--without-ngtcp2
+	--without-ngtcp2 \
+	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem)
 
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \

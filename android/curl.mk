@@ -78,6 +78,7 @@ CONFIGURE := \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
+	--without-libpsl \
 	--without-nghttp3 \
 	--without-ngtcp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem) \

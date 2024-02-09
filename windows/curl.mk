@@ -26,10 +26,10 @@ LIBNAME = curl
 
 WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
 	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter -Wno-sign-compare -Wno-unknown-pragmas
-CPPFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include -D_MT -include time.h
-CFLAGS := --target=$(TARGET) $(WARN)
+CPPFLAGS :=  --target=$(TARGET) $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include -D_MT -include time.h
+CFLAGS := $(WARN)
 LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs
-LIBS := -lkernel32 -loldnames
+LIBS := -lkernel32 -loldnames -lws2_32
 
 ifdef RELEASE
 CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
@@ -45,7 +45,6 @@ CONFIGURE := \
 	CPP="$(CC) -E" \
 	CPPFLAGS="$(CPPFLAGS)" \
 	LDFLAGS="$(LDFLAGS)" \
-	LIBS="$(LIBS)" \
 	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
 	--host=$(ARCH)-windows \
 	--includedir=$(PREFIX)/include \
@@ -94,6 +93,7 @@ CONFIGURE := \
 	--without-nghttp3 \
 	--without-ngtcp2 \
 	--without-schannel \
+	--without-libpsl \
 	--with-winidn \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem) \
 	--without-ca-path
@@ -103,7 +103,7 @@ CONFIGURE += \
 	--with-mbedtls \
 	--without-openssl \
 	--without-gnutls \
-	LIBS="-ladvapi32"
+	LIBS="$(LIBS) -ladvapi32 -lbcrypt"
 endif
 
 ifeq ($(VARIANT),openssl)

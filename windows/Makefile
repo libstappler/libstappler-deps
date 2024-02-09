@@ -51,10 +51,10 @@ CRT_LIB += \
 
 ifdef RELEASE
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.37.17.7.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
+	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.38.17.8.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
 else
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.37.17.7.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
+	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.38.17.8.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
 endif
 
 endif
@@ -74,7 +74,6 @@ LIBS := \
 	freetype.lib \
 	backtrace.lib \
 	sqlite3.lib \
-	idn2.lib \
 	mbedtls.lib \
 	zip.lib \
 	ssl.lib \
@@ -128,10 +127,6 @@ $(PREFIX)/lib/backtrace.lib: $(MAKE_ROOT)libbacktrace.mk
 $(PREFIX)/lib/sqlite3.lib: $(MAKE_ROOT)sqlite.mk
 	$(MAKE) -f $(MAKE_ROOT)sqlite.mk $(FORWARD_VARS)
 
-# Actually, use libuidna to mimic libidn2
-$(PREFIX)/lib/idn2.lib: $(MAKE_ROOT)uidna.mk
-	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
-
 $(PREFIX)/lib/mbedtls.lib: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
 
@@ -144,10 +139,10 @@ $(PREFIX)/lib/ssl.lib: $(MAKE_ROOT)openssl.mk
 $(PREFIX)/lib/gost.lib: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/ssl.lib
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/idn2.lib $(PREFIX)/lib/backtrace.lib
+$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/backtrace.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
-$(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib $(PREFIX)/lib/idn2.lib $(PREFIX)/lib/backtrace.lib
+$(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib $(PREFIX)/lib/backtrace.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
 .PHONY: all

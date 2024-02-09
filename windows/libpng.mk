@@ -24,14 +24,14 @@ LIBNAME = libpng
 
 WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
 	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 -D_MT -Xclang
+CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 -D_MT
 LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs
 
 ifdef RELEASE
-CFLAGS +=  --dependent-lib=libcmt $(OPT)
+CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
 LDFLAGS += -llibcmt -llibucrt -llibvcruntime
 else
-CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
+CFLAGS += -Xclang --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
 LDFLAGS += -llibcmtd -llibucrtd -llibvcruntimed
 endif
 
