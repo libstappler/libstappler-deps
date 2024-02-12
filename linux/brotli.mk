@@ -22,9 +22,22 @@
 
 LIBNAME = brotli
 
+CFLAGS := -I$(PREFIX)/include $(ARCH_CFLAGS)
+LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib
+
+CONFIGURE := \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
+	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
+	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
+	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
+	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
+	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+	-DBUILD_SHARED_LIBS=OFF \
+
 all:
 	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(PREFIX) -DBUILD_SHARED_LIBS=OFF $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release --target install
 	sed -i -e 's/ -lbrotlidec/ -lbrotlidec -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlidec.pc
 	sed -i -e 's/ -lbrotlienc/ -lbrotlienc -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlienc.pc

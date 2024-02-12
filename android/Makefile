@@ -87,9 +87,6 @@ $(PREFIX)/lib/libbacktrace.a: $(MAKE_ROOT)libbacktrace.mk
 $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 	$(MAKE) -f $(MAKE_ROOT)sqlite.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libglfw3.a: $(MAKE_ROOT)glfw.mk
-	$(MAKE) -f $(MAKE_ROOT)glfw.mk $(FORWARD_VARS)
-
 # Actually, use libuidna to mimic libidn2
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
@@ -99,12 +96,6 @@ $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 
 $(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
 	$(MAKE) -f $(MAKE_ROOT)openssl.mk $(FORWARD_VARS)
-
-#$(PREFIX)/lib/libnghttp3.a: $(MAKE_ROOT)nghttp3.mk
-#	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
-
-#$(PREFIX)/lib/libngtcp2.a: $(MAKE_ROOT)ngtcp2.mk $(PREFIX)/lib/libnghttp3.a $(PREFIX)/lib/libssl.a
-#	$(MAKE) -f $(MAKE_ROOT)ngtcp2.mk $(FORWARD_VARS)
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)

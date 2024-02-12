@@ -38,6 +38,10 @@ CONFIGURE := \
 	no-filenames \
 	no-autoload-config
 
+ifeq ($(ARCH),e2k)
+CONFIGURE += no-asm -mno-sse4.2
+endif
+
 ifeq ($(DEBUG),1)
 
 CONFIGURE += -d

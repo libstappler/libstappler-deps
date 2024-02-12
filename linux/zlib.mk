@@ -32,9 +32,9 @@ all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
 		CC=$(CC) CXX=$(CXX) \
-		CFLAGS="$(OPT) -fPIC" \
+		CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
 		CPP="$(CC) -E" \
-		CPPFLAGS="-I$(PREFIX)/include" \
+		CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
 		LDFLAGS="-L$(PREFIX)/lib" \
 		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
 		make -j8; \

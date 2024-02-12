@@ -24,8 +24,8 @@ LIBNAME = libbacktrace
 
 CONFIGURE := \
 	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
+	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
+	CPP="$(CC) -E $(ARCH_CFLAGS)" \
 	CPPFLAGS="-I$(PREFIX)/include" \
 	LDFLAGS="-L$(PREFIX)/lib" \
 	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
@@ -36,6 +36,10 @@ CONFIGURE := \
 	--prefix=$(PREFIX) \
 	--enable-shared=no \
 	--enable-static=yes
+
+ifeq ($(ARCH),e2k)
+CONFIGURE += --host=e2k-linux
+endif
 
 all:
 	@mkdir -p $(LIBNAME)

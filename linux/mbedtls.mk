@@ -25,7 +25,7 @@ LIBNAME = mbedtls
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="-Os -fPIC" CC=$(CC) lib
+	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="-Os -fPIC $(ARCH_CFLAGS)" CC=$(CC) lib
 	@mkdir -p $(PREFIX)/include/mbedtls $(PREFIX)/include/psa
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/include/mbedtls/*.h $(PREFIX)/include/mbedtls
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/include/psa/*.h $(PREFIX)/include/psa

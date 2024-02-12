@@ -26,9 +26,9 @@ LIBNAME = curl
 
 CONFIGURE := \
 	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
+	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
 	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
+	CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
 	LDFLAGS="-L$(PREFIX)/lib" \
 	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
 	--includedir=$(PREFIX)/include \
@@ -81,6 +81,10 @@ CONFIGURE := \
 	--without-nghttp3 \
 	--without-ngtcp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem)
+
+ifeq ($(ARCH),e2k)
+CONFIGURE += --host=e2k-linux
+endif
 
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \

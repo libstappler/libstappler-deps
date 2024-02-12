@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,35 +28,54 @@ MKDIR = mkdir -p
 
 ifdef ARCH
 
-CC := gcc
-CXX := g++
-OPT := -O3
-
 LIBS := \
+	libz.a \
 	libjpeg.a \
 	libpng16.a \
-	libbrotlienc.a \
 	libgif.a \
 	libwebp.a \
+	libbrotlienc.a \
 	libfreetype.a \
 	libbacktrace.a \
 	libsqlite3.a \
 	libidn2.a \
-	libcurl-openssl.a \
-	libcurl-mbedtls.a \
-	libcurl-gnutls.a \
 	libmbedtls.a \
-	libz.a \
+	libssl.a \
+	libgost.a \
 	libzip-openssl.a \
 	libzip-mbedtls.a \
-	libzip-gnutls.a \
-	libssl.a \
-	libgost.a
+	libcurl-openssl.a \
+	libcurl-mbedtls.a
+
+ifeq ($(ARCH),e2k)
+
+LCC_ROOT ?= /opt/mcst/lcc-1.26.20.e2k-v4.5.4
+
+LOCAL_PATH := $(LCC_ROOT)/bin.toolchain:$(PATH)
+export PATH = $(LOCAL_PATH)
+
+CC := e2k-linux-lcc
+CXX := e2k-linux-l++
+
+# sse4.2+ is emulated, so, disable it
+ARCH_CFLAGS := $(ARCH_CFLAGS)
+else
+CC := gcc
+CXX := g++
+ARCH_CFLAGS :=
+
+LIBS += \
+	libcurl-gnutls.a \
+	libzip-gnutls.a
+
+endif
+
+OPT := -O3
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
 
-FORWARD_VARS := ARCH=$(ARCH) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT)
+FORWARD_VARS := ARCH=$(ARCH) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT) ARCH_CFLAGS=$(ARCH_CFLAGS)
 
 ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
 
@@ -135,6 +154,10 @@ x86_64:
 	$(MKDIR) x86_64
 	$(MAKE) -f $(THIS_FILE) ARCH=x86_64
 
-.PHONY: all x86_64
+e2k:
+	$(MKDIR) e2k
+	$(MAKE) -f $(THIS_FILE) ARCH=e2k
+
+.PHONY: all x86_64 e2k
 
 endif

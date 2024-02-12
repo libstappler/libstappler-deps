@@ -22,7 +22,13 @@
 
 LIBNAME = libuidna
 
-CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX)
+AR := ar
+
+ifeq ($(ARCH),e2k)
+AR := e2k-linux-ar
+endif
+
+CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) CFLAGS=$(ARCH_CFLAGS) AR=$(AR)
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include

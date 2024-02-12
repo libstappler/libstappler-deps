@@ -128,6 +128,7 @@ $(SRC_ROOT)/openssl:
 	cd $(SRC_ROOT); $(TAR_XF) openssl-3.1.5.tar.gz
 	rm $(SRC_ROOT)/openssl-3.1.5.tar.gz
 	mv $(SRC_ROOT)/openssl-3.1.5 $(SRC_ROOT)/openssl
+	cp -f replacements/openssl/async_posix.c $(SRC_ROOT)/openssl/crypto/async/arch/async_posix.c
 
 $(SRC_ROOT)/openssl-gost-engine:
 	@$(MKDIR) $(SRC_ROOT)

@@ -24,9 +24,9 @@ LIBNAME = jpeg
 
 CONFIGURE := \
 	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
+	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
 	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
+	CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
 	LDFLAGS="-L$(PREFIX)/lib" \
 	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
 	--includedir=$(PREFIX)/include \
@@ -37,6 +37,10 @@ CONFIGURE := \
 	--enable-shared=no \
 	--enable-static=yes \
 	--disable-dependency-tracking
+
+ifeq ($(ARCH),e2k)
+CONFIGURE += --host=e2k-linux
+endif
 
 all:
 	@mkdir -p $(LIBNAME)
