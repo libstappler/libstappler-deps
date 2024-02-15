@@ -77,5 +77,7 @@ all:
 	cd $(LIBNAME); \
 		$(PRE_CONFIGURE) cmake $(LIB_SRC_DIR)/$(LIBNAME) $(CONFIGURE); \
 		make; make install
+	if [ -d "$(PREFIX)/lib64" ]; then cp -rf $(PREFIX)/lib64/* $(PREFIX)/lib/; fi
+	if [ -d "$(PREFIX)/lib64" ]; then rm -rf $(PREFIX)/lib64; fi
 	mv -f $(PREFIX)/lib/libzip.a $(PREFIX)/lib/libzip-$(VARIANT).a
 	rm -rf $(LIBNAME)

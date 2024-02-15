@@ -39,6 +39,8 @@ all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release --target install
+	if [ -d "$(PREFIX)/lib64" ]; then cp -rf $(PREFIX)/lib64/* $(PREFIX)/lib/; fi
+	if [ -d "$(PREFIX)/lib64" ]; then rm -rf $(PREFIX)/lib64; fi
 	sed -i -e 's/ -lbrotlidec/ -lbrotlidec -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlidec.pc
 	sed -i -e 's/ -lbrotlienc/ -lbrotlienc -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlienc.pc
 	rm -rf $(LIBNAME)
