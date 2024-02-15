@@ -65,7 +65,6 @@ CONFIGURE := \
 	--disable-smb \
 	--disable-gopher \
 	--disable-manual \
-	--disable-rtmp \
 	--disable-ntlm \
 	--disable-versioned-symbols \
 	--disable-verbose  \
@@ -84,6 +83,10 @@ CONFIGURE := \
 
 ifeq ($(ARCH),e2k)
 CONFIGURE += --host=e2k-linux
+endif
+
+ifeq ($(ARCH),aarch64)
+CONFIGURE += --host=aarch64-linux-gnu
 endif
 
 ifeq ($(VARIANT),mbedtls)

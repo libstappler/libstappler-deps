@@ -28,6 +28,10 @@ ifeq ($(ARCH),e2k)
 AR := e2k-linux-ar
 endif
 
+ifeq ($(ARCH),aarch64)
+AR := aarch64-linux-gnu-ar
+endif
+
 CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) CFLAGS=$(ARCH_CFLAGS) AR=$(AR)
 
 all:

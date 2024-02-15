@@ -42,6 +42,10 @@ ifeq ($(ARCH),e2k)
 CONFIGURE += --host=e2k-linux
 endif
 
+ifeq ($(ARCH),aarch64)
+CONFIGURE += --host=aarch64-linux-gnu
+endif
+
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \

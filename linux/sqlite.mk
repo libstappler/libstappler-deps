@@ -28,6 +28,10 @@ ifeq ($(ARCH),e2k)
 AR := e2k-linux-ar
 endif
 
+ifeq ($(ARCH),aarch64)
+AR := aarch64-linux-gnu-ar
+endif
+
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	@mkdir -p $(LIBNAME)

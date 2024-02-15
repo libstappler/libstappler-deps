@@ -26,7 +26,11 @@ CONFIGURE := \
 	--prefix=$(PREFIX) \
 	--includedir=$(PREFIX)/include \
 	--libdir=$(PREFIX)/lib \
-	--static --64 --const
+	--static --const
+
+ifneq ($(ARCH),aarch64)
+CONFIGURE +=  --64
+endif
 
 all:
 	@mkdir -p $(LIBNAME)

@@ -24,18 +24,24 @@ DEBUG ?= 0
 
 LIBNAME = openssl
 
-CONFIGURE := \
+TARGET := 
+
+ifeq ($(ARCH),aarch64)
+TARGET := linux-aarch64
+endif
+
+CONFIGURE := $(TARGET) \
 	--prefix=$(PREFIX) \
 	CC=$(CC) \
 	CXX=$(CXX) \
 	no-tests \
-	no-shared \
 	no-module \
 	no-legacy \
 	no-srtp \
 	no-srp \
 	no-dso \
 	no-filenames \
+	no-shared \
 	no-autoload-config
 
 ifeq ($(ARCH),e2k)
@@ -46,22 +52,19 @@ ifeq ($(DEBUG),1)
 
 CONFIGURE += -d
 
+endif
+
+ifeq ($(ARCH),aarch64)
 all:
-	rm -rf $(LIBNAME)
-	cp -r $(LIB_SRC_DIR)/$(LIBNAME) $(LIBNAME)
+	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		./Configure $(CONFIGURE); \
+		$(LIB_SRC_DIR)/$(LIBNAME)/Configure $(CONFIGURE); \
 		make -j8; \
 		make install_sw
-	mv -f $(PREFIX)/lib64/libssl.a $(PREFIX)/lib/libssl.a 
-	mv -f $(PREFIX)/lib64/libcrypto.a $(PREFIX)/lib/libcrypto.a 
-	mv -f $(PREFIX)/lib64/pkgconfig/libssl.pc $(PREFIX)/lib/pkgconfig/libssl.pc
-	mv -f $(PREFIX)/lib64/pkgconfig/libcrypto.pc $(PREFIX)/lib/pkgconfig/libcrypto.pc
-	rm -rf $(PREFIX)/lib64 $(PREFIX)/bin/c_rehash
+	rm -rf $(LIBNAME)
+	rm -rf $(PREFIX)/bin/c_rehash
 	sed -i -e 's/ -lssl/ -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
-
 else
-
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
@@ -75,7 +78,6 @@ all:
 	mv -f $(PREFIX)/lib64/pkgconfig/libcrypto.pc $(PREFIX)/lib/pkgconfig/libcrypto.pc
 	rm -rf $(PREFIX)/lib64 $(PREFIX)/bin/c_rehash
 	sed -i -e 's/ -lssl/ -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
-
 endif
 
 .PHONY: all

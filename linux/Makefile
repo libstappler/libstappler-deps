@@ -20,6 +20,8 @@
 
 .DEFAULT_GOAL := all
 
+LCC_TOOLCHAIN_PATH ?= /opt/mcst/lcc-1.26.20.e2k-v4.5.4
+
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 MAKE_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
 MAKE_ROOT := $(dir $(MAKE_FILE))
@@ -49,9 +51,7 @@ LIBS := \
 
 ifeq ($(ARCH),e2k)
 
-LCC_ROOT ?= /opt/mcst/lcc-1.26.20.e2k-v4.5.4
-
-LOCAL_PATH := $(LCC_ROOT)/bin.toolchain:$(PATH)
+LOCAL_PATH := $(LCC_TOOLCHAIN_PATH)/bin.toolchain:$(PATH)
 export PATH = $(LOCAL_PATH)
 
 CC := e2k-linux-lcc
@@ -59,7 +59,16 @@ CXX := e2k-linux-l++
 
 # sse4.2+ is emulated, so, disable it
 ARCH_CFLAGS := $(ARCH_CFLAGS)
+
 else
+ifeq ($(ARCH),aarch64)
+
+CC := aarch64-linux-gnu-gcc
+CXX := aarch64-linux-gnu-g++
+ARCH_CFLAGS :=
+
+else
+
 CC := gcc
 CXX := g++
 ARCH_CFLAGS :=
@@ -68,6 +77,7 @@ LIBS += \
 	libcurl-gnutls.a \
 	libzip-gnutls.a
 
+endif
 endif
 
 OPT := -O3
@@ -158,6 +168,10 @@ e2k:
 	$(MKDIR) e2k
 	$(MAKE) -f $(THIS_FILE) ARCH=e2k
 
-.PHONY: all x86_64 e2k
+aarch64:
+	$(MKDIR) aarch64
+	$(MAKE) -f $(THIS_FILE) ARCH=aarch64
+
+.PHONY: all x86_64 e2k aarch64
 
 endif
