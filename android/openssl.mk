@@ -50,7 +50,13 @@ CONFIGURE := android-$(ANDROID_ARCH) \
 	no-srp \
 	no-dso \
 	no-filenames \
-	no-autoload-config
+	no-autoload-config \
+	-fPIC
+
+ifeq ($(ARCH),armeabi-v7a)
+# bug with R_ARM_REL32
+CONFIGURE += no-asm
+endif
 
 all:
 	@mkdir -p $(LIBNAME)
