@@ -75,7 +75,8 @@ ARCH_CFLAGS :=
 
 LIBS += \
 	libcurl-gnutls.a \
-	libzip-gnutls.a
+	libzip-gnutls.a \
+	libvmlib.a
 
 endif
 endif
@@ -148,6 +149,9 @@ $(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
 
 $(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libvmlib.a: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/libz.a
+	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
 

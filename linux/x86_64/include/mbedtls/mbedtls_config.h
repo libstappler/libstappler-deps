@@ -2233,7 +2233,7 @@
  *
  * This modules adds support for the AES-NI instructions on x86.
  */
-#define MBEDTLS_AESNI_C
+//#define MBEDTLS_AESNI_C
 
 /**
  * \def MBEDTLS_AESCE_C

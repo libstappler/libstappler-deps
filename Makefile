@@ -30,7 +30,23 @@ WGET = wget
 MKDIR = mkdir -p
 TAR_XF = tar -xf
 
-LIBS = jpeg libpng giflib libwebp brotli curl freetype sqlite libuidna libbacktrace mbedtls libzip zlib openssl openssl-gost-engine
+LIBS = \
+	jpeg \
+	libpng \
+	giflib \
+	libwebp \
+	brotli \
+	curl \
+	freetype \
+	sqlite \
+	libuidna \
+	libbacktrace \
+	mbedtls \
+	libzip \
+	zlib \
+	openssl \
+	openssl-gost-engine \
+	wasm-micro-runtime
 
 all: $(addprefix $(SRC_ROOT)/,$(LIBS))
 
@@ -134,6 +150,10 @@ $(SRC_ROOT)/openssl-gost-engine:
 	@$(MKDIR) $(SRC_ROOT)
 	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.3 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 feb 2024
 	cp -f replacements/openssl-gost-engine/CMakeLists.txt $(SRC_ROOT)/openssl-gost-engine
+
+$(SRC_ROOT)/wasm-micro-runtime:
+	@$(MKDIR) $(SRC_ROOT)
+	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch WAMR-1.3.2 https://github.com/bytecodealliance/wasm-micro-runtime.git --depth 1 # revised: 27 Mar 2024
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)
