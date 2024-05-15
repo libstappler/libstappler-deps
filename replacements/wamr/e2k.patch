@@ -1,0 +1,393 @@
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake
+--- dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake	2024-05-15 22:38:10.769384114 +0800
+@@ -43,6 +43,9 @@
+   add_definitions(-DBUILD_TARGET_RISCV32_ILP32)
+ elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
+   add_definitions(-DBUILD_TARGET_ARC)
++elseif (WAMR_BUILD_TARGET STREQUAL "E2K_64")
++  add_definitions(-DBUILD_TARGET_E2K_64)
++  set (WAMR_BUILD_INVOKE_NATIVE_GENERAL 1)
+ else ()
+   message (FATAL_ERROR "-- WAMR build target isn't set")
+ endif ()
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/src/wasm-micro-runtime/core/config.h
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/config.h	2024-05-15 22:45:23.672034302 +0800
+@@ -21,7 +21,8 @@
+     && !defined(BUILD_TARGET_RISCV64_LP64) \
+     && !defined(BUILD_TARGET_RISCV32_ILP32D) \
+     && !defined(BUILD_TARGET_RISCV32_ILP32) \
+-    && !defined(BUILD_TARGET_ARC)
++    && !defined(BUILD_TARGET_ARC) \
++    && !defined(BUILD_TARGET_E2K_64)
+ /* clang-format on */
+ #if defined(__x86_64__) || defined(__x86_64)
+ #define BUILD_TARGET_X86_64
+@@ -47,6 +48,8 @@
+ #define BUILD_TARGET_RISCV32_ILP32D
+ #elif defined(__arc__)
+ #define BUILD_TARGET_ARC
++#elif defined(__e2k__)
++#define BUILD_TARGET_E2K_64
+ #else
+ #error "Build target isn't set"
+ #endif
+@@ -252,7 +255,7 @@
+ 
+ #ifndef WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS
+ #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_X86_64) \
+-    || defined(BUILD_TARGET_AARCH64)
++    || defined(BUILD_TARGET_AARCH64) || defined(BUILD_TARGET_E2K_64)
+ #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 1
+ #else
+ #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 0
+@@ -410,7 +413,7 @@
+ #define GC_HEAP_SIZE_MAX (1024 * 1024 * 1024)
+ 
+ /* Default wasm stack size of each app */
+-#if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64)
++#if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) || defined(BUILD_TARGET_E2K_64)
+ #define DEFAULT_WASM_STACK_SIZE (16 * 1024)
+ #else
+ #define DEFAULT_WASM_STACK_SIZE (12 * 1024)
+Только в libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch: invokeNative_e2k.c
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c	2024-05-15 22:55:04.903831836 +0800
+@@ -128,7 +128,7 @@
+     }
+     else if (field_size == 8) {
+ #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
+-    || defined(BUILD_TARGET_X86_32)
++    || defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_E2K_64)
+         *(int64 *)field_data = value->i64;
+ #else
+         PUT_I64_TO_ADDR((uint32 *)field_data, value->i64);
+@@ -166,7 +166,7 @@
+     }
+     else if (field_size == 8) {
+ #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
+-    || defined(BUILD_TARGET_X86_32)
++    || defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_E2K_64)
+         value->i64 = *(int64 *)field_data;
+ #else
+         value->i64 = GET_I64_FROM_ADDR((uint32 *)field_data);
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c	2024-05-15 23:51:09.556234839 +0800
+@@ -4741,6 +4741,279 @@
+           || defined(BUILD_TARGET_RISCV32_ILP32)  \
+           || defined(BUILD_TARGET_ARC) */
+ 
++#if defined(BUILD_TARGET_E2K_64)
++typedef void (*GenericFunctionPointer)();
++void
++invokeNative(GenericFunctionPointer f, uint32 *args, uint32 sz);
++
++typedef float64 (*Float64FuncPtr)(GenericFunctionPointer f, uint64 *, uint64);
++typedef float32 (*Float32FuncPtr)(GenericFunctionPointer f, uint64 *, uint64);
++typedef int64 (*Int64FuncPtr)(GenericFunctionPointer f, uint64 *, uint64);
++typedef int32 (*Int32FuncPtr)(GenericFunctionPointer f, uint64 *, uint64);
++typedef void (*VoidFuncPtr)(GenericFunctionPointer f, uint64 *, uint64);
++
++static volatile Int64FuncPtr invokeNative_Int64 = (Int64FuncPtr)(uintptr_t)invokeNative;
++static volatile Int32FuncPtr invokeNative_Int32 = (Int32FuncPtr)(uintptr_t)invokeNative;
++static volatile Float64FuncPtr invokeNative_Float64 = (Float64FuncPtr)(uintptr_t)invokeNative;
++static volatile Float32FuncPtr invokeNative_Float32 = (Float32FuncPtr)(uintptr_t)invokeNative;
++static volatile VoidFuncPtr invokeNative_Void = (VoidFuncPtr)(uintptr_t)invokeNative;
++
++bool
++wasm_runtime_invoke_native(WASMExecEnv *exec_env, void *func_ptr,
++                           const WASMFuncType *func_type, const char *signature,
++                           void *attachment, uint32 *argv, uint32 argc,
++                           uint32 *argv_ret)
++{
++    WASMModuleInstanceCommon *module = wasm_runtime_get_module_inst(exec_env);
++    uint64 argv_buf[32], *argv1 = argv_buf, argc1, i, j = 0;
++    uint32 *argv_src = argv;
++    uint64 arg_i64, ptr_len;
++    uint64 result_count = func_type->result_count;
++    uint64 ext_ret_count = result_count > 1 ? result_count - 1 : 0;
++    uint64 size;
++    bool ret = false;
++#if WASM_ENABLE_GC == 0 && WASM_ENABLE_REF_TYPES != 0
++    bool is_aot_func = (NULL == signature);
++#endif
++
++    argc1 = argc + ext_ret_count + 2;
++
++    if (argc1 > sizeof(argv_buf) / sizeof(uint64)) {
++        size = sizeof(uint64) * (uint64)argc1;
++        if (!(argv1 = runtime_malloc((uint32)size, exec_env->module_inst, NULL,
++                                     0))) {
++            return false;
++        }
++    }
++
++    argv1[j++] = (uint64)(uintptr_t)exec_env;
++
++    for (i = 0; i < func_type->param_count; i++) {
++        switch (func_type->types[i]) {
++            case VALUE_TYPE_I32:
++#if WASM_ENABLE_GC == 0 && WASM_ENABLE_REF_TYPES != 0
++            case VALUE_TYPE_FUNCREF:
++#endif
++            {
++                arg_i64 = *argv_src++;
++                /* TODO: memory64 if future there is a way for supporting
++                 * wasm64 and wasm32 in libc at the same time, remove the
++                 * macro control */
++#if WASM_ENABLE_MEMORY64 == 0
++                if (signature) {
++                    if (signature[i + 1] == '*') {
++                        /* param is a pointer */
++                        if (signature[i + 2] == '~')
++                            /* pointer with length followed */
++                            ptr_len = *argv_src;
++                        else
++                            /* pointer without length followed */
++                            ptr_len = 1;
++
++                        if (!wasm_runtime_validate_app_addr(
++                                module, arg_i64, (uint64)ptr_len))
++                            goto fail;
++
++                        arg_i64 = (uintptr_t)wasm_runtime_addr_app_to_native(
++                            module, arg_i64);
++                    }
++                    else if (signature[i + 1] == '$') {
++                        /* param is a string */
++                        if (!wasm_runtime_validate_app_str_addr(
++                                module, arg_i64))
++                            goto fail;
++
++                        arg_i64 = (uintptr_t)wasm_runtime_addr_app_to_native(
++                            module, arg_i64);
++                    }
++                }
++#endif
++                argv1[j++] = arg_i64;
++                break;
++            }
++            case VALUE_TYPE_I64:
++#if WASM_ENABLE_MEMORY64 != 0
++            {
++                arg_i64 = GET_I64_FROM_ADDR(argv_src);
++                argv_src += 2;
++                if (signature) {
++                    /* TODO: memory64 pointer with length need a new symbol
++                     * to represent type i64, with '~' still represent i32
++                     * length */
++                    if (signature[i + 1] == '*') {
++                        /* param is a pointer */
++                        if (signature[i + 2] == '~')
++                            /* pointer with length followed */
++                            ptr_len = *argv_src;
++                        else
++                            /* pointer without length followed */
++                            ptr_len = 1;
++
++                        if (!wasm_runtime_validate_app_addr(module, arg_i64,
++                                                            (uint64)ptr_len))
++                            goto fail;
++
++                        arg_i64 = (uint64)wasm_runtime_addr_app_to_native(
++                            module, arg_i64);
++                    }
++                    else if (signature[i + 1] == '$') {
++                        /* param is a string */
++                        if (!wasm_runtime_validate_app_str_addr(module,
++                                                                arg_i64))
++                            goto fail;
++
++                        arg_i64 = (uint64)wasm_runtime_addr_app_to_native(
++                            module, arg_i64);
++                    }
++                }
++                argv1[j++] = arg_i64;
++                break;
++            }
++#endif
++#if WASM_ENABLE_GC != 0
++            case REF_TYPE_FUNCREF:
++            case REF_TYPE_EXTERNREF:
++            case REF_TYPE_ANYREF:
++            case REF_TYPE_EQREF:
++            case REF_TYPE_HT_NULLABLE:
++            case REF_TYPE_HT_NON_NULLABLE:
++            case REF_TYPE_I31REF:
++            case REF_TYPE_NULLFUNCREF:
++            case REF_TYPE_NULLEXTERNREF:
++            case REF_TYPE_STRUCTREF:
++            case REF_TYPE_ARRAYREF:
++            case REF_TYPE_NULLREF:
++#if WASM_ENABLE_STRINGREF != 0
++            case REF_TYPE_STRINGREF:
++            case REF_TYPE_STRINGVIEWWTF8:
++            case REF_TYPE_STRINGVIEWWTF16:
++            case REF_TYPE_STRINGVIEWITER:
++#endif
++#endif
++
++                argv1[j++] = *(uint64 *)argv_src;
++                argv_src += 2;
++                break;
++            case VALUE_TYPE_F32:
++                 *(float32 *)&argv1[j++] = *(float32 *)argv_src++;
++                break;
++            case VALUE_TYPE_F64:
++                *(float64 *)&argv1[j++] = *(float64 *)argv_src;
++                argv_src += 2;
++                break;
++#if WASM_ENABLE_GC == 0 && WASM_ENABLE_REF_TYPES != 0
++            case VALUE_TYPE_EXTERNREF:
++            {
++                uint32 externref_idx = *argv_src++;
++                if (is_aot_func) {
++                    argv1[j++] = externref_idx;
++                }
++                else {
++                    void *externref_obj;
++
++                    if (!wasm_externref_ref2obj(externref_idx, &externref_obj))
++                        goto fail;
++
++                    argv1[j++] = (uintptr_t)externref_obj;
++                }
++                break;
++            }
++#endif
++            default:
++                bh_assert(0);
++                break;
++        }
++    }
++
++    /* Save extra result values' address to argv1 */
++    for (i = 0; i < ext_ret_count; i++) {
++        argv1[j++] = *(uint64 *)argv_src;
++        argv_src += 2;
++    }
++
++    argc1 = j;
++    exec_env->attachment = attachment;
++    if (func_type->result_count == 0) {
++        invokeNative_Void(func_ptr, argv1, argc1);
++    }
++    else {
++        switch (func_type->types[func_type->param_count]) {
++            case VALUE_TYPE_I32:
++#if WASM_ENABLE_GC != 0
++            case REF_TYPE_FUNCREF:
++            case REF_TYPE_EXTERNREF:
++            case REF_TYPE_ANYREF:
++            case REF_TYPE_EQREF:
++            case REF_TYPE_HT_NULLABLE:
++            case REF_TYPE_HT_NON_NULLABLE:
++            case REF_TYPE_I31REF:
++            case REF_TYPE_NULLFUNCREF:
++            case REF_TYPE_NULLEXTERNREF:
++            case REF_TYPE_STRUCTREF:
++            case REF_TYPE_ARRAYREF:
++            case REF_TYPE_NULLREF:
++#if WASM_ENABLE_STRINGREF != 0
++            case REF_TYPE_STRINGREF:
++            case REF_TYPE_STRINGVIEWWTF8:
++            case REF_TYPE_STRINGVIEWWTF16:
++            case REF_TYPE_STRINGVIEWITER:
++#endif
++#endif
++#if WASM_ENABLE_GC == 0 && WASM_ENABLE_REF_TYPES != 0
++            case VALUE_TYPE_FUNCREF:
++#endif
++                argv_ret[0] =
++                    (uint32)invokeNative_Int32(func_ptr, argv1, argc1);
++                break;
++            case VALUE_TYPE_I64:
++                PUT_I64_TO_ADDR(argv_ret,
++                                invokeNative_Int64(func_ptr, argv1, argc1));
++                break;
++            case VALUE_TYPE_F32:
++                *(float32 *)argv_ret =
++                    invokeNative_Float32(func_ptr, argv1, argc1);
++                break;
++            case VALUE_TYPE_F64:
++                PUT_F64_TO_ADDR(argv_ret,
++                                invokeNative_Float64(func_ptr, argv1, argc1));
++                break;
++#if WASM_ENABLE_GC == 0 && WASM_ENABLE_REF_TYPES != 0
++            case VALUE_TYPE_EXTERNREF:
++            {
++                if (is_aot_func) {
++                    uint32 externref_idx =
++                        (uint32)invokeNative_Int32(func_ptr, argv1, argc1);
++                    argv_ret[0] = externref_idx;
++                }
++                else {
++                    void *externref_obj = (void *)(uintptr_t)invokeNative_Int32(
++                        func_ptr, argv1, argc1);
++                    uint32 externref_idx;
++                    if (!wasm_externref_obj2ref(exec_env->module_inst,
++                                                externref_obj, &externref_idx))
++                        goto fail;
++                    argv_ret[0] = externref_idx;
++                }
++                break;
++            }
++#endif
++            default:
++                bh_assert(0);
++                break;
++        }
++    }
++    exec_env->attachment = NULL;
++
++    ret = !wasm_runtime_copy_exception(module, NULL);
++
++fail:
++    if (argv1 != argv_buf)
++        wasm_runtime_free(argv1);
++    return ret;
++}
++
++#endif
++
+ #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_ARM)    \
+     || defined(BUILD_TARGET_THUMB) || defined(BUILD_TARGET_MIPS) \
+     || defined(BUILD_TARGET_XTENSA)
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c	2024-05-15 22:48:45.747832741 +0800
+@@ -1660,7 +1660,7 @@
+         type->fields[i].field_size =
+             (uint8)wasm_reftype_size(ref_type.ref_type);
+ #if !(defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
+-      || defined(BUILD_TARGET_X86_32))
++      || defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_E2K_64))
+         if (type->fields[i].field_size == 2)
+             offset = align_uint(offset, 2);
+         else if (type->fields[i].field_size >= 4) /* field size is 4 or 8 */
+diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h	2024-05-15 22:43:02.136306497 +0800
+@@ -83,7 +83,7 @@
+ #if WASM_DISABLE_HW_BOUND_CHECK == 0
+ #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64)            \
+     || defined(BUILD_TARGET_AARCH64) || defined(BUILD_TARGET_RISCV64_LP64D) \
+-    || defined(BUILD_TARGET_RISCV64_LP64)
++    || defined(BUILD_TARGET_RISCV64_LP64) || defined(BUILD_TARGET_E2K_64)
+ 
+ #include <setjmp.h>
+ 
+@@ -111,7 +111,7 @@
+ 
+ void
+ os_sigreturn();
+-#endif /* end of BUILD_TARGET_X86_64/AMD_64/AARCH64/RISCV64 */
++#endif /* end of BUILD_TARGET_X86_64/AMD_64/AARCH64/RISCV64/E2K_64 */
+ #endif /* end of WASM_DISABLE_HW_BOUND_CHECK */
+ 
+ #define os_getpagesize getpagesize
+Только в libstappler-root/deps/src/wasm-micro-runtime: .cproject
+Только в libstappler-root/deps/src/wasm-micro-runtime: .project

@@ -51,10 +51,10 @@ CRT_LIB += \
 
 ifdef RELEASE
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.38.17.8.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
+	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.39.17.9.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
 else
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.38.17.8.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
+	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.39.17.9.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
 endif
 
 endif
@@ -79,7 +79,9 @@ LIBS := \
 	ssl.lib \
 	gost.lib \
 	curl-mbedtls.lib \
-	curl-openssl.lib
+	curl-openssl.lib \
+	vmlib-release.lib \
+	vmlib-debug.lib
 
 
 ifdef RELEASE
@@ -144,6 +146,9 @@ $(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREF
 
 $(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib $(PREFIX)/lib/backtrace.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
+
+$(PREFIX)/lib/vmlib-release.lib $(PREFIX)/lib/vmlib-debug.lib: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/z.lib
+	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
 

@@ -27,23 +27,31 @@ WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-in
 CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 -maes -mpclmul -include wmmintrin.h -D_MT
 LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
 
+CONFIGURE := \
+	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
+	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
+	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
+	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
+	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
+	-DCMAKE_RC_COMPILER=$(CC) \
+	-DCMAKE_SYSTEM_NAME=Windows \
+	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+	-DMBEDTLS_FATAL_WARNINGS=OFF
+
 ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibucrt -llibcmt -llibvcruntime
+CFLAGS +=  --dependent-lib=libcmt
+LDFLAGS += -llibcmt -llibucrt -lvcruntime
+CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
 else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibucrtd -llibcmtd -llibvcruntimed
+CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
+LDFLAGS += -llibcmtd -llibucrtd -lvcruntimed
+CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
 endif
 
 all:
-	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
-	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) $(CFLAGS)" CC=$(CC) AR=ar WINDOWS=1 lib
-	@mkdir -p $(PREFIX)/include/mbedtls $(PREFIX)/include/psa
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/include/mbedtls/*.h $(PREFIX)/include/mbedtls
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/include/psa/*.h $(PREFIX)/include/psa
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/library/libmbed* $(PREFIX)/lib/
-	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	mv -f $(PREFIX)/lib/libmbedcrypto.a $(PREFIX)/lib/mbedcrypto.lib
-	mv -f $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/mbedtls.lib
-	mv -f $(PREFIX)/lib/libmbedx509.a $(PREFIX)/lib/mbedx509.lib
+	@mkdir -p $(LIBNAME)
+	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); cmake  --build . --config Release --target install
+	rm -rf $(LIBNAME)

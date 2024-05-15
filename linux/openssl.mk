@@ -77,7 +77,8 @@ all:
 	mv -f $(PREFIX)/lib64/pkgconfig/libssl.pc $(PREFIX)/lib/pkgconfig/libssl.pc
 	mv -f $(PREFIX)/lib64/pkgconfig/libcrypto.pc $(PREFIX)/lib/pkgconfig/libcrypto.pc
 	rm -rf $(PREFIX)/lib64 $(PREFIX)/bin/c_rehash
-	sed -i -e 's/ -lssl/ -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
+	sed -i -e 's/ -lssl/ -lgost -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
+	sed -i -e 's/{exec_prefix}\/lib64/{exec_prefix}\/lib/g' $(PREFIX)/lib/pkgconfig/libssl.pc
 endif
 
 .PHONY: all

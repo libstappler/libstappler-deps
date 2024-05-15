@@ -55,92 +55,92 @@ clean:
 
 $(SRC_ROOT)/jpeg:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) http://ijg.org/files/jpegsrc.v9f.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); $(WGET) http://ijg.org/files/jpegsrc.v9f.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) jpegsrc.v9f.tar.gz
 	rm $(SRC_ROOT)/jpegsrc.v9f.tar.gz
 	mv $(SRC_ROOT)/jpeg-9f $(SRC_ROOT)/jpeg
 
 $(SRC_ROOT)/libpng:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://download.sourceforge.net/libpng/libpng-1.6.42.tar.gz # revised: 10 feb 2024
-	cd $(SRC_ROOT); $(TAR_XF) libpng-1.6.42.tar.gz
-	rm $(SRC_ROOT)/libpng-1.6.42.tar.gz
-	mv $(SRC_ROOT)/libpng-1.6.42 $(SRC_ROOT)/libpng
+	cd $(SRC_ROOT); $(WGET) https://download.sourceforge.net/libpng/libpng-1.6.43.tar.xz # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) libpng-1.6.43.tar.xz
+	rm $(SRC_ROOT)/libpng-1.6.43.tar.xz
+	mv $(SRC_ROOT)/libpng-1.6.43 $(SRC_ROOT)/libpng
 
 $(SRC_ROOT)/giflib:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://sourceforge.net/projects/giflib/files/giflib-5.2.1.tar.gz # revised: 10 feb 2024
-	cd $(SRC_ROOT); $(TAR_XF) giflib-5.2.1.tar.gz
-	rm $(SRC_ROOT)/giflib-5.2.1.tar.gz
-	mv $(SRC_ROOT)/giflib-5.2.1 $(SRC_ROOT)/giflib
+	cd $(SRC_ROOT); $(WGET) https://altushost-swe.dl.sourceforge.net/project/giflib/giflib-5.2.2.tar.gz # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) giflib-5.2.2.tar.gz
+	rm $(SRC_ROOT)/giflib-5.2.2.tar.gz
+	mv $(SRC_ROOT)/giflib-5.2.2 $(SRC_ROOT)/giflib
 
 $(SRC_ROOT)/libwebp:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2.tar.gz # revised: 10 feb 2024
-	cd $(SRC_ROOT); $(TAR_XF) libwebp-1.3.2.tar.gz
-	rm $(SRC_ROOT)/libwebp-1.3.2.tar.gz
-	mv $(SRC_ROOT)/libwebp-1.3.2 $(SRC_ROOT)/libwebp
+	cd $(SRC_ROOT); $(WGET) https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0.tar.gz # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) libwebp-1.4.0.tar.gz
+	rm $(SRC_ROOT)/libwebp-1.4.0.tar.gz
+	mv $(SRC_ROOT)/libwebp-1.4.0 $(SRC_ROOT)/libwebp
 
 $(SRC_ROOT)/brotli:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); $(WGET) https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) v1.1.0.tar.gz
 	rm $(SRC_ROOT)/v1.1.0.tar.gz
 	mv $(SRC_ROOT)/brotli-1.1.0 $(SRC_ROOT)/brotli
 
 $(SRC_ROOT)/mbedtls:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.5.2.tar.gz # revised: 10 feb 2024
-	cd $(SRC_ROOT); $(TAR_XF) v3.5.2.tar.gz
-	rm $(SRC_ROOT)/v3.5.2.tar.gz
-	mv $(SRC_ROOT)/mbedtls-3.5.2 $(SRC_ROOT)/mbedtls
+	cd $(SRC_ROOT); $(WGET) https://github.com/Mbed-TLS/mbedtls/releases/download/v3.6.0/mbedtls-3.6.0.tar.bz2 # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) mbedtls-3.6.0.tar.bz2
+	rm $(SRC_ROOT)/mbedtls-3.6.0.tar.bz2
+	mv $(SRC_ROOT)/mbedtls-3.6.0 $(SRC_ROOT)/mbedtls
 
 $(SRC_ROOT)/curl:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://curl.se/download/curl-8.6.0.tar.gz # revised: 10 feb 2024
-	cd $(SRC_ROOT); $(TAR_XF) curl-8.6.0.tar.gz
-	rm $(SRC_ROOT)/curl-8.6.0.tar.gz
-	mv $(SRC_ROOT)/curl-8.6.0 $(SRC_ROOT)/curl
+	cd $(SRC_ROOT); $(WGET) https://curl.se/download/curl-8.7.1.tar.xz # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) curl-8.7.1.tar.xz
+	rm $(SRC_ROOT)/curl-8.7.1.tar.xz
+	mv $(SRC_ROOT)/curl-8.7.1 $(SRC_ROOT)/curl
 
 $(SRC_ROOT)/freetype:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); $(WGET) https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) freetype-2.13.2.tar.gz
 	rm $(SRC_ROOT)/freetype-2.13.2.tar.gz
 	mv $(SRC_ROOT)/freetype-2.13.2 $(SRC_ROOT)/freetype
 
 $(SRC_ROOT)/sqlite:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip # revised: 10 feb 2024
-	cd $(SRC_ROOT); unzip sqlite-amalgamation-3450100.zip -d .
-	rm $(SRC_ROOT)/sqlite-amalgamation-3450100.zip
-	mv $(SRC_ROOT)/sqlite-amalgamation-3450100 $(SRC_ROOT)/sqlite
+	cd $(SRC_ROOT); $(WGET) https://www.sqlite.org/2024/sqlite-amalgamation-3450300.zip # revised: 15 may 2024
+	cd $(SRC_ROOT); unzip sqlite-amalgamation-3450300.zip -d .
+	rm $(SRC_ROOT)/sqlite-amalgamation-3450300.zip
+	mv $(SRC_ROOT)/sqlite-amalgamation-3450300 $(SRC_ROOT)/sqlite
 
 $(SRC_ROOT)/libuidna:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 10 feb 2024
+	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 15 may 2024
 
 $(SRC_ROOT)/libbacktrace:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 10 feb 2024
+	cd $(SRC_ROOT); git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 15 may 2024
 
 $(SRC_ROOT)/libzip:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://libzip.org/download/libzip-1.10.1.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); wget https://libzip.org/download/libzip-1.10.1.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) libzip-1.10.1.tar.gz
 	rm $(SRC_ROOT)/libzip-1.10.1.tar.gz
 	mv $(SRC_ROOT)/libzip-1.10.1 $(SRC_ROOT)/libzip
 
 $(SRC_ROOT)/zlib:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.1.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.1.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) zlib-1.3.1.tar.gz
 	rm $(SRC_ROOT)/zlib-1.3.1.tar.gz
 	mv $(SRC_ROOT)/zlib-1.3.1 $(SRC_ROOT)/zlib
 
 $(SRC_ROOT)/openssl:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://www.openssl.org/source/openssl-3.1.5.tar.gz # revised: 10 feb 2024
+	cd $(SRC_ROOT); wget https://www.openssl.org/source/openssl-3.1.5.tar.gz # revised: 15 may 2024
 	cd $(SRC_ROOT); $(TAR_XF) openssl-3.1.5.tar.gz
 	rm $(SRC_ROOT)/openssl-3.1.5.tar.gz
 	mv $(SRC_ROOT)/openssl-3.1.5 $(SRC_ROOT)/openssl
@@ -148,19 +148,22 @@ $(SRC_ROOT)/openssl:
 
 $(SRC_ROOT)/openssl-gost-engine:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.3 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 feb 2024
+	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.3 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 15 may 2024
 	cp -f replacements/openssl-gost-engine/CMakeLists.txt $(SRC_ROOT)/openssl-gost-engine
 
 $(SRC_ROOT)/wasm-micro-runtime:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch WAMR-1.3.2 https://github.com/bytecodealliance/wasm-micro-runtime.git --depth 1 # revised: 27 Mar 2024
+	cd $(SRC_ROOT); wget https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-2.0.0.tar.gz # revised: 15 may 2024
+	cd $(SRC_ROOT); $(TAR_XF) WAMR-2.0.0.tar.gz
+	rm $(SRC_ROOT)/WAMR-2.0.0.tar.gz
+	mv $(SRC_ROOT)/wasm-micro-runtime-WAMR-2.0.0 $(SRC_ROOT)/wasm-micro-runtime
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)
-	$(WGET) https://github.com/Jake-Shadle/xwin/releases/download/0.5.0/xwin-0.5.0-x86_64-unknown-linux-musl.tar.gz
-	$(TAR_XF) xwin-0.5.0-x86_64-unknown-linux-musl.tar.gz
-	rm xwin-0.5.0-x86_64-unknown-linux-musl.tar.gz
-	mv xwin-0.5.0-x86_64-unknown-linux-musl xwin
+	$(WGET) https://github.com/Jake-Shadle/xwin/releases/download/0.5.2/xwin-0.5.2-x86_64-unknown-linux-musl.tar.gz
+	$(TAR_XF) xwin-0.5.2-x86_64-unknown-linux-musl.tar.gz
+	rm xwin-0.5.2-x86_64-unknown-linux-musl.tar.gz
+	mv xwin-0.5.2-x86_64-unknown-linux-musl xwin
 	cd xwin; ./xwin --accept-license unpack; ./xwin --accept-license splat
 	mv xwin/.xwin-cache/splat xwin/splat
 

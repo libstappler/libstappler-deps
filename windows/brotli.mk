@@ -40,12 +40,9 @@ CONFIGURE := \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW
 
 ifdef RELEASE
-CFLAGS +=  --dependent-lib=libcmt
-LDFLAGS += -llibcmt -llibucrt -lvcruntime
 CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
 else
-CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibcmtd -llibucrtd -lvcruntimed
+CFLAGS +=  -g -Xclang -gcodeview -D_DEBUG
 CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
 endif
 

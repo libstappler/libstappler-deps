@@ -51,7 +51,9 @@ LIBS := \
 	libcurl-openssl.a \
 	libzip-mbedtls.a \
 	libzip-openssl.a \
-	libgost.a
+	libgost.a \
+	libvmlib-release.a \
+	libvmlib-debug.a
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
@@ -114,6 +116,9 @@ $(PREFIX)/lib/libzip-openssl.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libssl.a
 
 $(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a: $(MAKE_ROOT)wamr.mk
+	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
 

@@ -42,12 +42,14 @@ LIBS := \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
+	libcurl-mbedtls.a \
+	libzip-mbedtls.a \
 	libssl.a \
 	libgost.a \
-	libzip-openssl.a \
-	libzip-mbedtls.a \
 	libcurl-openssl.a \
-	libcurl-mbedtls.a
+	libzip-openssl.a \
+	libvmlib-release.a \
+	libvmlib-debug.a
 
 ifeq ($(ARCH),e2k)
 
@@ -75,9 +77,7 @@ ARCH_CFLAGS :=
 
 LIBS += \
 	libcurl-gnutls.a \
-	libzip-gnutls.a \
-	libvmlib-release.a \
-	libvmlib-debug.a
+	libzip-gnutls.a
 
 endif
 endif
