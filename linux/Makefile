@@ -75,9 +75,13 @@ CC := gcc
 CXX := g++
 ARCH_CFLAGS :=
 
+ifndef DISABLE_GNUTLS
+
 LIBS += \
 	libcurl-gnutls.a \
 	libzip-gnutls.a
+
+endif
 
 endif
 endif
@@ -163,7 +167,7 @@ ARCHS := x86_64
 all: $(ARCHS)
 
 clean:
-	rm -rf x86_64
+	rm -rf x86_64 e2k aarch64
 
 x86_64:
 	$(MKDIR) x86_64

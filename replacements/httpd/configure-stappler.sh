@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ./configure --prefix=$1 \
 	CPPFLAGS="-I$STAPPLER_DEPS_ROOT/include" \

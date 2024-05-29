@@ -78,6 +78,8 @@ all:
 	mv -f $(PREFIX)/lib64/pkgconfig/libcrypto.pc $(PREFIX)/lib/pkgconfig/libcrypto.pc
 	rm -rf $(PREFIX)/lib64 $(PREFIX)/bin/c_rehash
 	sed -i -e 's/ -lssl/ -lgost -lssl -lpthread/g' $(PREFIX)/lib/pkgconfig/libssl.pc
+	cp $(PREFIX)/lib/pkgconfig/libssl.pc $(PREFIX)/lib/pkgconfig/openssl.pc
+	sed -i -e 's/ -lssl/ -lssl -lcrypto/g' $(PREFIX)/lib/pkgconfig/openssl.pc
 	sed -i -e 's/{exec_prefix}\/lib64/{exec_prefix}\/lib/g' $(PREFIX)/lib/pkgconfig/libssl.pc
 endif
 

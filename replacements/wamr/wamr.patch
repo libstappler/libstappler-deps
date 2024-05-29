@@ -1,17 +1,16 @@
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake
 --- dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake	2024-05-15 22:38:10.769384114 +0800
-@@ -43,6 +43,9 @@
++++ libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake	2024-05-16 17:09:41.385707655 +0800
+@@ -43,6 +43,8 @@
    add_definitions(-DBUILD_TARGET_RISCV32_ILP32)
  elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
    add_definitions(-DBUILD_TARGET_ARC)
 +elseif (WAMR_BUILD_TARGET STREQUAL "E2K_64")
 +  add_definitions(-DBUILD_TARGET_E2K_64)
-+  set (WAMR_BUILD_INVOKE_NATIVE_GENERAL 1)
  else ()
    message (FATAL_ERROR "-- WAMR build target isn't set")
  endif ()
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/src/wasm-micro-runtime/core/config.h
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/src/wasm-micro-runtime/core/config.h
 --- dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h	2024-04-22 15:00:09.000000000 +0800
 +++ libstappler-root/deps/src/wasm-micro-runtime/core/config.h	2024-05-15 22:45:23.672034302 +0800
 @@ -21,7 +21,8 @@
@@ -51,8 +50,121 @@ diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/s
  #define DEFAULT_WASM_STACK_SIZE (16 * 1024)
  #else
  #define DEFAULT_WASM_STACK_SIZE (12 * 1024)
-Только в libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch: invokeNative_e2k.c
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/arch/invokeNative_e2k.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch/invokeNative_e2k.c
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/arch/invokeNative_e2k.c	1970-01-01 08:00:00.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch/invokeNative_e2k.c	2024-05-15 23:06:22.970239291 +0800
+@@ -0,0 +1,110 @@
++
++#include "../wasm_runtime_common.h"
++#include "../wasm_exec_env.h"
++
++void
++invokeNative(void (*native_code)(), uint64 argv[], uint64 argc)
++{
++    bh_assert(argc >= sizeof(WASMExecEnv *) / sizeof(uint32));
++
++    switch (argc) {
++        case 0:
++            native_code();
++            break;
++        case 1:
++            native_code(argv[0]);
++            break;
++        case 2:
++            native_code(argv[0], argv[1]);
++            break;
++        case 3:
++            native_code(argv[0], argv[1], argv[2]);
++            break;
++        case 4:
++            native_code(argv[0], argv[1], argv[2], argv[3]);
++            break;
++        case 5:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4]);
++            break;
++        case 6:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5]);
++            break;
++        case 7:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6]);
++            break;
++        case 8:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7]);
++            break;
++        case 9:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8]);
++            break;
++        case 10:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9]);
++            break;
++        case 11:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10]);
++            break;
++        case 12:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11]);
++            break;
++        case 13:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12]);
++            break;
++        case 14:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13]);
++            break;
++        case 15:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14]);
++            break;
++        case 16:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14], argv[15]);
++            break;
++        case 17:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14], argv[15], argv[16]);
++            break;
++        case 18:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14], argv[15], argv[16],
++                        argv[17]);
++            break;
++        case 19:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14], argv[15], argv[16],
++                        argv[17], argv[18]);
++            break;
++        case 20:
++            native_code(argv[0], argv[1], argv[2], argv[3], argv[4], argv[5],
++                        argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
++                        argv[12], argv[13], argv[14], argv[15], argv[16],
++                        argv[17], argv[18], argv[19]);
++            break;
++        default:
++        {
++            /* FIXME: If this happen, add more cases. */
++            WASMExecEnv *exec_env = *(WASMExecEnv **)argv;
++            WASMModuleInstanceCommon *module_inst = exec_env->module_inst;
++            wasm_runtime_set_exception(
++                module_inst,
++                "the argument number of native function exceeds maximum");
++            return;
++        }
++    }
++}
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c
 --- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c	2024-04-22 15:00:09.000000000 +0800
 +++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c	2024-05-15 22:55:04.903831836 +0800
 @@ -128,7 +128,7 @@
@@ -73,7 +185,43 @@ diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c libs
          value->i64 = *(int64 *)field_data;
  #else
          value->i64 = GET_I64_FROM_ADDR((uint32 *)field_data);
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/iwasm_common.cmake libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/iwasm_common.cmake
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/iwasm_common.cmake	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/iwasm_common.cmake	2024-05-16 15:47:34.719753230 +0800
+@@ -40,7 +40,10 @@
+ elseif (WAMR_BUILD_TARGET STREQUAL "X86_64" OR WAMR_BUILD_TARGET STREQUAL "AMD_64")
+   if (NOT WAMR_BUILD_SIMD EQUAL 1)
+     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
+-      if (NOT MINGW)
++      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
++        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
++        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s PROPERTY LANGUAGE C)
++      elseif (NOT MINGW)
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64.asm)
+       else ()
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
+@@ -50,7 +53,10 @@
+     endif ()
+   else ()
+     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
+-      if (NOT MINGW)
++      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
++        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
++        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s PROPERTY LANGUAGE C)
++      elseif (NOT MINGW)
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64_simd.asm)
+       else ()
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
+@@ -91,6 +97,8 @@
+   set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_riscv.S)
+ elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
+   set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_arc.s)
++elseif (WAMR_BUILD_TARGET STREQUAL "E2K_64")
++  set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_e2k.c)
+ else ()
+   message (FATAL_ERROR "Build target isn't set")
+ endif ()
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c
 --- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c	2024-04-22 15:00:09.000000000 +0800
 +++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c	2024-05-15 23:51:09.556234839 +0800
 @@ -4741,6 +4741,279 @@
@@ -356,7 +504,7 @@ diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common
  #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_ARM)    \
      || defined(BUILD_TARGET_THUMB) || defined(BUILD_TARGET_MIPS) \
      || defined(BUILD_TARGET_XTENSA)
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c
 --- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c	2024-04-22 15:00:09.000000000 +0800
 +++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c	2024-05-15 22:48:45.747832741 +0800
 @@ -1660,7 +1660,7 @@
@@ -368,7 +516,7 @@ diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c 
          if (type->fields[i].field_size == 2)
              offset = align_uint(offset, 2);
          else if (type->fields[i].field_size >= 4) /* field size is 4 or 8 */
-diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h
 --- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h	2024-04-22 15:00:09.000000000 +0800
 +++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h	2024-05-15 22:43:02.136306497 +0800
 @@ -83,7 +83,7 @@
@@ -389,5 +537,33 @@ diff -ur dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_i
  #endif /* end of WASM_DISABLE_HW_BOUND_CHECK */
  
  #define os_getpagesize getpagesize
-Только в libstappler-root/deps/src/wasm-micro-runtime: .cproject
-Только в libstappler-root/deps/src/wasm-micro-runtime: .project
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/platform_internal.h
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/platform_internal.h	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/platform_internal.h	2024-05-16 16:02:03.802829129 +0800
+@@ -31,6 +31,7 @@
+ #include <windows.h>
+ #include <basetsd.h>
+ #include <signal.h>
++#include <direct.h>
+ 
+ #include "platform_wasi_types.h"
+ 
+diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/win_file.c libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/win_file.c
+--- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/win_file.c	2024-04-22 15:00:09.000000000 +0800
++++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/win_file.c	2024-05-16 15:02:02.234292283 +0800
+@@ -1295,13 +1295,13 @@
+ 
+         if (wbufsize >= 4 && wbuf[0] == L'\\' && wbuf[1] == L'?'
+             && wbuf[2] == L'?' && wbuf[3] == L'\\') {
+-            // Starts with \??\ 
++            // Starts with \??\ .
+             if (wbufsize >= 6
+                 && ((wbuf[4] >= L'A' && wbuf[4] <= L'Z')
+                     || (wbuf[4] >= L'a' && wbuf[4] <= L'z'))
+                 && wbuf[5] == L':' && (wbufsize == 6 || wbuf[6] == L'\\'))
+                 {
+-                    // \??\<drive>:\ 
++                    // \??\<drive>:\ .
+                     wbuf += 4;
+                     wbufsize -= 4;
+                 }

@@ -79,6 +79,7 @@ CONFIGURE := \
 	--disable-imap \
 	--disable-smb \
 	--disable-gopher \
+	--disable-docs \
 	--disable-manual \
 	--disable-ntlm \
 	--disable-versioned-symbols \

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+XWIN_DIR=`realpath $XWIN_DIR`
+
+windres -I$XWIN_DIR/splat/sdk/include/um -I$XWIN_DIR/splat/sdk/include/shared $@

@@ -65,6 +65,7 @@ CONFIGURE := \
 	--disable-imap \
 	--disable-smb \
 	--disable-gopher \
+	--disable-docs \
 	--disable-manual \
 	--disable-rtmp \
 	--disable-ntlm \
