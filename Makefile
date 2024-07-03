@@ -153,10 +153,10 @@ $(SRC_ROOT)/openssl-gost-engine:
 
 $(SRC_ROOT)/wasm-micro-runtime:
 	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-2.0.0.tar.gz # revised: 15 may 2024
-	cd $(SRC_ROOT); $(TAR_XF) WAMR-2.0.0.tar.gz
-	rm $(SRC_ROOT)/WAMR-2.0.0.tar.gz
-	mv $(SRC_ROOT)/wasm-micro-runtime-WAMR-2.0.0 $(SRC_ROOT)/wasm-micro-runtime
+	cd $(SRC_ROOT); wget https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-2.1.0.tar.gz # revised: 3 jul 2024
+	cd $(SRC_ROOT); $(TAR_XF) WAMR-2.1.0.tar.gz
+	rm $(SRC_ROOT)/WAMR-2.1.0.tar.gz
+	mv $(SRC_ROOT)/wasm-micro-runtime-WAMR-2.1.0 $(SRC_ROOT)/wasm-micro-runtime
 
 xwin:
 	@$(MKDIR) $(SRC_ROOT)
