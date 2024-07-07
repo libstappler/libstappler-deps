@@ -22,23 +22,10 @@
 
 LIBNAME = freetype
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBPNG_CFLAGS="-I$$(PREFIX)/include" \
-	LIBPNG_LIBS="-L$(PREFIX)/lib -lpng16" \
-	--host=$(TARGET) \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--with-bzip2=no \
 	--with-zlib=yes \
 	--with-png=yes \

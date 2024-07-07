@@ -22,39 +22,14 @@
 
 LIBNAME = openssl-gost-engine
 
-ifeq ($(ARCH),x86)
-ANDROID_ARCH := x86
-endif
-
-ifeq ($(ARCH),x86_64)
-ANDROID_ARCH := x86_64
-endif
-
-ifeq ($(ARCH),arm64-v8a)
-ANDROID_ARCH := arm64
-endif
-
-ifeq ($(ARCH),armeabi-v7a)
-ANDROID_ARCH := arm
-endif
-
-PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	OPENSSL_ROOT_DIR=$(PREFIX) \
-	LIBS="-lz -lm"
+include configure.mk
 
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		export ANDROID_NDK_ROOT=$(NDK); \
 		export PATH=$(NDKPATH):$$PATH; \
-		$(PRE_CONFIGURE) cmake -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_ARCH=$(ANDROID_ARCH) -DCMAKE_ANDROID_ARCH_ABI=$(ARCH) \
-			-DCMAKE_BUILD_TYPE=Release -DOPENSSL_USE_STATIC_LIBS=TRUE -DCMAKE_VERBOSE_MAKEFILE=TRUE \
-			-DOPENSSL_ROOT_DIR=$(PREFIX) -DOPENSSL_CRYPTO_LIBRARY=$(PREFIX)/lib/libcrypto.a \
+		cmake $(CONFIGURE_CMAKE) -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) \
+			-DOPENSSL_CRYPTO_LIBRARY=$(PREFIX)/lib/libcrypto.a \
 			-DOPENSSL_INCLUDE_DIR=$(PREFIX)/include \
 			-DRELAXED_ALIGNMENT=TRUE \
 			-DADDCARRY_U64=FALSE \

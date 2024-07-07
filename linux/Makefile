@@ -20,7 +20,7 @@
 
 .DEFAULT_GOAL := all
 
-LCC_TOOLCHAIN_PATH ?= /opt/mcst/lcc-1.26.20.e2k-v4.5.4
+LCC_TOOLCHAIN_PATH ?= /opt/mcst/lcc-1.28.09.e2k-v7.6.1
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 MAKE_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
@@ -28,7 +28,7 @@ MAKE_ROOT := $(dir $(MAKE_FILE))
 
 MKDIR = mkdir -p
 
-ifdef ARCH
+OPT := -O3 -fPIC -DPIC
 
 LIBS := \
 	libz.a \
@@ -42,56 +42,58 @@ LIBS := \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
-	libcurl-mbedtls.a \
-	libzip-mbedtls.a \
+	libnghttp3.a \
 	libssl.a \
 	libgost.a \
 	libcurl-openssl.a \
 	libzip-openssl.a \
+	libcurl-mbedtls.a \
+	libzip-mbedtls.a \
 	libvmlib-release.a \
 	libvmlib-debug.a
 
-ifeq ($(ARCH),e2k)
 
+ifndef ARCH
+
+ARCHS := x86_64 aarch64
+
+all: $(ARCHS)
+
+clean:
+	rm -rf x86_64 e2k aarch64
+
+x86_64:
+	$(MKDIR) x86_64
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 CC=gcc CXX=g++
+
+e2k:
+	$(MKDIR) e2k
+	$(MAKE) -f $(THIS_FILE) ARCH=e2k CC=e2k-linux-lcc CXX=e2k-linux-l++
+
+aarch64:
+	$(MKDIR) aarch64
+	$(MAKE) -f $(THIS_FILE) ARCH=aarch64 CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++
+
+.PHONY: all x86_64 e2k aarch64
+
+else # ARCH
+
+ifeq ($(ARCH),e2k)
 LOCAL_PATH := $(LCC_TOOLCHAIN_PATH)/bin.toolchain:$(PATH)
 export PATH = $(LOCAL_PATH)
-
-CC := e2k-linux-lcc
-CXX := e2k-linux-l++
-
-# sse4.2+ is emulated, so, disable it
-ARCH_CFLAGS := $(ARCH_CFLAGS)
-
-else
-ifeq ($(ARCH),aarch64)
-
-CC := aarch64-linux-gnu-gcc
-CXX := aarch64-linux-gnu-g++
-ARCH_CFLAGS :=
-
-else
-
-CC := gcc
-CXX := g++
-ARCH_CFLAGS :=
-
-ifndef DISABLE_GNUTLS
-
-LIBS += \
-	libcurl-gnutls.a \
-	libzip-gnutls.a
-
-endif
-
-endif
-endif
-
-OPT := -O3
+endif # e2k
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
 
-FORWARD_VARS := ARCH=$(ARCH) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT) ARCH_CFLAGS=$(ARCH_CFLAGS)
+FORWARD_VARS := \
+	ARCH=$(ARCH) \
+	PREFIX=$(PREFIX) \
+	CC=$(CC) \
+	CXX=$(CXX) \
+	OPT="$(OPT)" \
+	LIB_SRC_DIR=$(LIB_SRC_DIR) \
+	MAKE_ROOT=$(MAKE_ROOT)
 
 ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
 
@@ -137,6 +139,9 @@ $(PREFIX)/lib/libcurl-gnutls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libidn2.a $(PR
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
 
+$(PREFIX)/lib/libnghttp3.a: $(MAKE_ROOT)nghttp3.mk
+	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
+
 $(PREFIX)/lib/libzip-openssl.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=openssl
 
@@ -159,28 +164,5 @@ $(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a: $(MAKE_ROOT)wam
 	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
-
-else
-
-ARCHS := x86_64
-
-all: $(ARCHS)
-
-clean:
-	rm -rf x86_64 e2k aarch64
-
-x86_64:
-	$(MKDIR) x86_64
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64
-
-e2k:
-	$(MKDIR) e2k
-	$(MAKE) -f $(THIS_FILE) ARCH=e2k
-
-aarch64:
-	$(MKDIR) aarch64
-	$(MAKE) -f $(THIS_FILE) ARCH=aarch64
-
-.PHONY: all x86_64 e2k aarch64
 
 endif

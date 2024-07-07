@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,9 @@
 
 LIBNAME = libuidna
 
-AR := ar
+include configure.mk
 
-ifeq ($(ARCH),e2k)
-AR := e2k-linux-ar
-endif
-
-ifeq ($(ARCH),aarch64)
-AR := aarch64-linux-gnu-ar
-endif
-
-CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) CFLAGS=$(ARCH_CFLAGS) AR=$(AR)
+CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) CFLAGS= CFLAGS_OPTIMIZE="$(OPT)" AR=$(AR)
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include

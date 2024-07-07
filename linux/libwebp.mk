@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,15 @@
 
 LIBNAME = libwebp
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBS="-lz -lm" \
-	LIBPNG_CONFIG="$(PREFIX)/bin/libpng16-config" \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--disable-gl \
 	--disable-sdl \
 	--disable-tiff \
 	--disable-wic \
 	--disable-dependency-tracking
-
-ifeq ($(ARCH),e2k)
-CONFIGURE += --host=e2k-linux
-endif
-
-ifeq ($(ARCH),aarch64)
-CONFIGURE += --host=aarch64-linux-gnu
-endif
 
 all:
 	@mkdir -p $(LIBNAME)

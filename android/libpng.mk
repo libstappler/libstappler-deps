@@ -22,21 +22,10 @@
 
 LIBNAME = libpng
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--host=$(TARGET) \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(PREFIX)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--disable-unversioned-links \
 	--disable-unversioned-libpng-pc \
 	--disable-unversioned-libpng-config \

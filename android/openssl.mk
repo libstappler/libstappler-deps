@@ -22,6 +22,8 @@
 
 LIBNAME = openssl
 
+include configure.mk
+
 ifeq ($(ARCH),x86)
 ANDROID_ARCH := x86
 endif
@@ -51,12 +53,7 @@ CONFIGURE := android-$(ANDROID_ARCH) \
 	no-dso \
 	no-filenames \
 	no-autoload-config \
-	-fPIC
-
-ifeq ($(ARCH),armeabi-v7a)
-# bug with R_ARM_REL32
-CONFIGURE += no-asm
-endif
+	$(OPT)
 
 all:
 	@mkdir -p $(LIBNAME)

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,15 +24,10 @@ VARIANT ?= mbedtls
 
 LIBNAME = libzip
 
-PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBS="-lz -lm"
+include configure.mk
 
 CONFIGURE := \
+	$(CONFIGURE_CMAKE) \
 	-DBUILD_SHARED_LIBS=OFF \
 	-DENABLE_BZIP2=OFF \
 	-DENABLE_LZMA=OFF \
@@ -41,9 +36,8 @@ CONFIGURE := \
 	-DBUILD_REGRESS=OFF \
 	-DBUILD_EXAMPLES=OFF \
 	-DBUILD_DOC=OFF \
-	-DCMAKE_VERBOSE_MAKEFILE=TRUE \
-	-DZLIB_LIBRARY=$(PREFIX)/lib/libz.a -DZLIB_INCLUDE_DIR=$(PREFIX)/include \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX)
+	-DZLIB_LIBRARY="$(PREFIX)/lib/libz.a" \
+	-DZLIB_INCLUDE_DIR="$(PREFIX)/include"
 
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \
@@ -75,7 +69,7 @@ all:
 	@rm -rf $(LIBNAME)
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		$(PRE_CONFIGURE) cmake $(LIB_SRC_DIR)/$(LIBNAME) $(CONFIGURE); \
+		cmake $(LIB_SRC_DIR)/$(LIBNAME) $(CONFIGURE); \
 		make; make install
 	if [ -d "$(PREFIX)/lib64" ]; then cp -rf $(PREFIX)/lib64/* $(PREFIX)/lib/; fi
 	if [ -d "$(PREFIX)/lib64" ]; then rm -rf $(PREFIX)/lib64; fi

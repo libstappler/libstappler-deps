@@ -1,7 +1,25 @@
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake
---- dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/build-scripts/config_common.cmake	2024-05-16 17:09:41.385707655 +0800
-@@ -43,6 +43,8 @@
+From 86faaa572189c230d1a036c638d887e49b63ccba Mon Sep 17 00:00:00 2001
+Message-Id: <86faaa572189c230d1a036c638d887e49b63ccba.1720142464.git.sbkarr@stappler.org>
+From: SBKarr <sbkarr@stappler.org>
+Date: Thu, 4 Jul 2024 08:20:22 +0800
+Subject: [PATCH 1/2] Initial e2k support
+
+---
+ build-scripts/config_common.cmake             |   2 +
+ core/config.h                                 |   9 +-
+ core/iwasm/common/arch/invokeNative_e2k.c     | 109 +++++++
+ core/iwasm/common/gc/gc_object.c              |   4 +-
+ core/iwasm/common/iwasm_common.cmake          |   2 +
+ core/iwasm/common/wasm_runtime_common.c       | 275 ++++++++++++++++++
+ core/iwasm/interpreter/wasm_loader.c          |   2 +-
+ .../shared/platform/linux/platform_internal.h |   4 +-
+ 8 files changed, 399 insertions(+), 8 deletions(-)
+
+diff --git a/build-scripts/config_common.cmake b/build-scripts/config_common.cmake
+index edff5b84..ed83276f 100644
+--- a/build-scripts/config_common.cmake
++++ b/build-scripts/config_common.cmake
+@@ -43,6 +43,8 @@ elseif (WAMR_BUILD_TARGET STREQUAL "RISCV32_ILP32")
    add_definitions(-DBUILD_TARGET_RISCV32_ILP32)
  elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
    add_definitions(-DBUILD_TARGET_ARC)
@@ -10,9 +28,10 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/build-scripts/config_common.cmake li
  else ()
    message (FATAL_ERROR "-- WAMR build target isn't set")
  endif ()
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/src/wasm-micro-runtime/core/config.h
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/config.h	2024-05-15 22:45:23.672034302 +0800
+diff --git a/core/config.h b/core/config.h
+index 2f3e401d..29f5d082 100644
+--- a/core/config.h
++++ b/core/config.h
 @@ -21,7 +21,8 @@
      && !defined(BUILD_TARGET_RISCV64_LP64) \
      && !defined(BUILD_TARGET_RISCV32_ILP32D) \
@@ -41,7 +60,7 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/
  #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 1
  #else
  #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 0
-@@ -410,7 +413,7 @@
+@@ -393,7 +396,7 @@
  #define GC_HEAP_SIZE_MAX (1024 * 1024 * 1024)
  
  /* Default wasm stack size of each app */
@@ -50,11 +69,12 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/config.h libstappler-root/deps/
  #define DEFAULT_WASM_STACK_SIZE (16 * 1024)
  #else
  #define DEFAULT_WASM_STACK_SIZE (12 * 1024)
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/arch/invokeNative_e2k.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch/invokeNative_e2k.c
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/arch/invokeNative_e2k.c	1970-01-01 08:00:00.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/arch/invokeNative_e2k.c	2024-05-15 23:06:22.970239291 +0800
-@@ -0,0 +1,110 @@
-+
+diff --git a/core/iwasm/common/arch/invokeNative_e2k.c b/core/iwasm/common/arch/invokeNative_e2k.c
+new file mode 100644
+index 00000000..bd6d2401
+--- /dev/null
++++ b/core/iwasm/common/arch/invokeNative_e2k.c
+@@ -0,0 +1,109 @@
 +#include "../wasm_runtime_common.h"
 +#include "../wasm_exec_env.h"
 +
@@ -164,10 +184,11 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/arch/invokeNative_
 +        }
 +    }
 +}
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/gc/gc_object.c	2024-05-15 22:55:04.903831836 +0800
-@@ -128,7 +128,7 @@
+diff --git a/core/iwasm/common/gc/gc_object.c b/core/iwasm/common/gc/gc_object.c
+index 333effcf..baa9fda1 100644
+--- a/core/iwasm/common/gc/gc_object.c
++++ b/core/iwasm/common/gc/gc_object.c
+@@ -128,7 +128,7 @@ wasm_struct_obj_set_field(WASMStructObjectRef struct_obj, uint32 field_idx,
      }
      else if (field_size == 8) {
  #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
@@ -176,7 +197,7 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c lib
          *(int64 *)field_data = value->i64;
  #else
          PUT_I64_TO_ADDR((uint32 *)field_data, value->i64);
-@@ -166,7 +166,7 @@
+@@ -166,7 +166,7 @@ wasm_struct_obj_get_field(const WASMStructObjectRef struct_obj,
      }
      else if (field_size == 8) {
  #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
@@ -185,34 +206,11 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/gc/gc_object.c lib
          value->i64 = *(int64 *)field_data;
  #else
          value->i64 = GET_I64_FROM_ADDR((uint32 *)field_data);
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/iwasm_common.cmake libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/iwasm_common.cmake
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/iwasm_common.cmake	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/iwasm_common.cmake	2024-05-16 15:47:34.719753230 +0800
-@@ -40,7 +40,10 @@
- elseif (WAMR_BUILD_TARGET STREQUAL "X86_64" OR WAMR_BUILD_TARGET STREQUAL "AMD_64")
-   if (NOT WAMR_BUILD_SIMD EQUAL 1)
-     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
--      if (NOT MINGW)
-+      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-+        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
-+        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s PROPERTY LANGUAGE C)
-+      elseif (NOT MINGW)
-         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64.asm)
-       else ()
-         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
-@@ -50,7 +53,10 @@
-     endif ()
-   else ()
-     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
--      if (NOT MINGW)
-+      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-+        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
-+        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s PROPERTY LANGUAGE C)
-+      elseif (NOT MINGW)
-         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64_simd.asm)
-       else ()
-         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
-@@ -91,6 +97,8 @@
+diff --git a/core/iwasm/common/iwasm_common.cmake b/core/iwasm/common/iwasm_common.cmake
+index 15895b8e..951a8704 100644
+--- a/core/iwasm/common/iwasm_common.cmake
++++ b/core/iwasm/common/iwasm_common.cmake
+@@ -91,6 +91,8 @@ elseif (WAMR_BUILD_TARGET MATCHES "RISCV*")
    set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_riscv.S)
  elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
    set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_arc.s)
@@ -221,13 +219,15 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/iwasm_common.cmake
  else ()
    message (FATAL_ERROR "Build target isn't set")
  endif ()
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_common.c	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/common/wasm_runtime_common.c	2024-05-15 23:51:09.556234839 +0800
-@@ -4741,6 +4741,279 @@
+diff --git a/core/iwasm/common/wasm_runtime_common.c b/core/iwasm/common/wasm_runtime_common.c
+index f18cd784..0fccca99 100644
+--- a/core/iwasm/common/wasm_runtime_common.c
++++ b/core/iwasm/common/wasm_runtime_common.c
+@@ -5019,6 +5019,281 @@ fail:
            || defined(BUILD_TARGET_RISCV32_ILP32)  \
            || defined(BUILD_TARGET_ARC) */
  
++
 +#if defined(BUILD_TARGET_E2K_64)
 +typedef void (*GenericFunctionPointer)();
 +void
@@ -501,25 +501,28 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/common/wasm_runtime_commo
 +
 +#endif
 +
++
  #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_ARM)    \
      || defined(BUILD_TARGET_THUMB) || defined(BUILD_TARGET_MIPS) \
      || defined(BUILD_TARGET_XTENSA)
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/iwasm/interpreter/wasm_loader.c	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/iwasm/interpreter/wasm_loader.c	2024-05-15 22:48:45.747832741 +0800
-@@ -1660,7 +1660,7 @@
+diff --git a/core/iwasm/interpreter/wasm_loader.c b/core/iwasm/interpreter/wasm_loader.c
+index bf117dd8..0e3e7d95 100644
+--- a/core/iwasm/interpreter/wasm_loader.c
++++ b/core/iwasm/interpreter/wasm_loader.c
+@@ -1728,7 +1728,7 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
          type->fields[i].field_size =
              (uint8)wasm_reftype_size(ref_type.ref_type);
  #if !(defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
 -      || defined(BUILD_TARGET_X86_32))
-+      || defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_E2K_64))
++      || defined(BUILD_TARGET_X86_32)) || defined(BUILD_TARGET_E2K_64))
          if (type->fields[i].field_size == 2)
              offset = align_uint(offset, 2);
          else if (type->fields[i].field_size >= 4) /* field size is 4 or 8 */
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_internal.h	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/linux/platform_internal.h	2024-05-15 22:43:02.136306497 +0800
-@@ -83,7 +83,7 @@
+diff --git a/core/shared/platform/linux/platform_internal.h b/core/shared/platform/linux/platform_internal.h
+index aeddc4cc..81f7ab5d 100644
+--- a/core/shared/platform/linux/platform_internal.h
++++ b/core/shared/platform/linux/platform_internal.h
+@@ -83,7 +83,7 @@ typedef sem_t korp_sem;
  #if WASM_DISABLE_HW_BOUND_CHECK == 0
  #if defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64)            \
      || defined(BUILD_TARGET_AARCH64) || defined(BUILD_TARGET_RISCV64_LP64D) \
@@ -528,7 +531,7 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_
  
  #include <setjmp.h>
  
-@@ -111,7 +111,7 @@
+@@ -111,7 +111,7 @@ os_signal_unmask();
  
  void
  os_sigreturn();
@@ -537,33 +540,6 @@ diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/linux/platform_
  #endif /* end of WASM_DISABLE_HW_BOUND_CHECK */
  
  #define os_getpagesize getpagesize
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/platform_internal.h libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/platform_internal.h
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/platform_internal.h	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/platform_internal.h	2024-05-16 16:02:03.802829129 +0800
-@@ -31,6 +31,7 @@
- #include <windows.h>
- #include <basetsd.h>
- #include <signal.h>
-+#include <direct.h>
- 
- #include "platform_wasi_types.h"
- 
-diff -ruN dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/win_file.c libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/win_file.c
---- dev/wasm-micro-runtime-WAMR-2.0.0/core/shared/platform/windows/win_file.c	2024-04-22 15:00:09.000000000 +0800
-+++ libstappler-root/deps/src/wasm-micro-runtime/core/shared/platform/windows/win_file.c	2024-05-16 15:02:02.234292283 +0800
-@@ -1295,13 +1295,13 @@
- 
-         if (wbufsize >= 4 && wbuf[0] == L'\\' && wbuf[1] == L'?'
-             && wbuf[2] == L'?' && wbuf[3] == L'\\') {
--            // Starts with \??\ 
-+            // Starts with \??\ .
-             if (wbufsize >= 6
-                 && ((wbuf[4] >= L'A' && wbuf[4] <= L'Z')
-                     || (wbuf[4] >= L'a' && wbuf[4] <= L'z'))
-                 && wbuf[5] == L':' && (wbufsize == 6 || wbuf[6] == L'\\'))
-                 {
--                    // \??\<drive>:\ 
-+                    // \??\<drive>:\ .
-                     wbuf += 4;
-                     wbufsize -= 4;
-                 }
+-- 
+2.34.1
+

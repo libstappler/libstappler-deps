@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,9 +20,9 @@
 
 .DEFAULT_GOAL := all
 
-DEBUG ?= 0
-
 LIBNAME = openssl
+
+include configure.mk
 
 TARGET := 
 
@@ -49,9 +49,7 @@ CONFIGURE += no-asm -mno-sse4.2
 endif
 
 ifeq ($(DEBUG),1)
-
 CONFIGURE += -d
-
 endif
 
 ifeq ($(ARCH),aarch64)

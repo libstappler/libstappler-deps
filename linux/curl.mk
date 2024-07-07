@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,10 @@ VARIANT ?= mbedtls
 
 LIBNAME = curl
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
+	$(CONFIGURE_AUTOCONF) \
 	--enable-optimize \
 	--enable-symbol-hiding \
 	--enable-http \
@@ -82,14 +74,6 @@ CONFIGURE := \
 	--without-ngtcp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem)
 
-ifeq ($(ARCH),e2k)
-CONFIGURE += --host=e2k-linux
-endif
-
-ifeq ($(ARCH),aarch64)
-CONFIGURE += --host=aarch64-linux-gnu
-endif
-
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \
 	--with-mbedtls \
@@ -101,7 +85,9 @@ ifeq ($(VARIANT),openssl)
 CONFIGURE += \
 	--without-mbedtls \
 	--with-openssl \
-	--without-gnutls
+	--without-gnutls \
+	--with-nghttp3 \
+	--with-openssl-quic
 endif
 
 ifeq ($(VARIANT),gnutls)

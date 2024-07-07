@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,13 @@
 
 LIBNAME = sqlite
 
-AR := ar
-
-ifeq ($(ARCH),e2k)
-AR := e2k-linux-ar
-endif
-
-ifeq ($(ARCH),aarch64)
-AR := aarch64-linux-gnu-ar
-endif
+include configure.mk
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		$(CC) $(OPT) -fPIC $(ARCH_CFLAGS) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
+		$(CC) $(OPT) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
 		$(AR) rcs libsqlite3.a sqlite3.o
 	mv -f $(LIBNAME)/libsqlite3.a $(PREFIX)/lib/
 	rm -rf $(LIBNAME)

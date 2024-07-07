@@ -22,12 +22,14 @@
 
 LIBNAME = sqlite
 
+include configure.mk
+
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		$(CC) $(OPT) -fPIC -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
-		$(NDKPATH)/llvm-ar rcs libsqlite3.a sqlite3.o
+		$(CC) $(OPT) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
+		$(AR) rcs libsqlite3.a sqlite3.o
 	mv -f $(LIBNAME)/libsqlite3.a $(PREFIX)/lib/
 	rm -rf $(LIBNAME)
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/*.h $(PREFIX)/include/

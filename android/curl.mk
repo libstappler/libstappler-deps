@@ -24,19 +24,10 @@ VARIANT ?= mbedtls
 
 LIBNAME = curl
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--host=$(TARGET) \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
+	$(CONFIGURE_AUTOCONF) \
 	--enable-optimize \
 	--enable-symbol-hiding \
 	--enable-http \
@@ -80,7 +71,6 @@ CONFIGURE := \
 	--without-libssh2 \
 	--without-librtmp \
 	--without-libpsl \
-	--without-nghttp3 \
 	--without-ngtcp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem) \
 	--without-ca-path
@@ -96,7 +86,9 @@ ifeq ($(VARIANT),openssl)
 CONFIGURE += \
 	--without-mbedtls \
 	--with-openssl \
-	--without-gnutls
+	--without-gnutls \
+	--with-nghttp3 \
+	--with-openssl-quic
 endif
 
 all:

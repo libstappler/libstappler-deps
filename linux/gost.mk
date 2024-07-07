@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,39 +20,19 @@
 
 .DEFAULT_GOAL := all
 
-DEBUG ?= 0
-
 LIBNAME = openssl-gost-engine
 
-ifeq ($(DEBUG),1)
+include configure.mk
 
 all:
 	rm -rf $(LIBNAME)
 	cp -r $(LIB_SRC_DIR)/$(LIBNAME) $(LIBNAME)
 	cd $(LIBNAME); \
-		cmake -DCMAKE_BUILD_TYPE=Debug -DOPENSSL_USE_STATIC_LIBS=TRUE \
-			-DCMAKE_PREFIX_PATH=$(PREFIX) -DCMAKE_VERBOSE_MAKEFILE=TRUE \
-			-DOPENSSL_ROOT_DIR=$(PREFIX) -DCMAKE_C_FLAGS_INIT="-fPIC $(ARCH_CFLAGS)" .; \
-		make gost_engine_static
-	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
-	
-
-else
-
-all:
-	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); \
-		cmake -DCMAKE_BUILD_TYPE=Release -DOPENSSL_USE_STATIC_LIBS=TRUE \
-			-DCMAKE_PREFIX_PATH=$(PREFIX) -DCMAKE_VERBOSE_MAKEFILE=TRUE \
-			-DOPENSSL_ROOT_DIR=$(PREFIX) -DCMAKE_C_FLAGS_INIT="-fPIC $(ARCH_CFLAGS)" $(LIB_SRC_DIR)/$(LIBNAME); \
+		cmake $(CONFIGURE_CMAKE) -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
 	rm -rf $(LIBNAME)
-
-endif
 
 .PHONY: all

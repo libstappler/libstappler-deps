@@ -1,0 +1,64 @@
+From 85ae51c2d332dc7a5e7479661094a8e815245b0e Mon Sep 17 00:00:00 2001
+Message-Id: <85ae51c2d332dc7a5e7479661094a8e815245b0e.1720142464.git.sbkarr@stappler.org>
+In-Reply-To: <86faaa572189c230d1a036c638d887e49b63ccba.1720142464.git.sbkarr@stappler.org>
+References: <86faaa572189c230d1a036c638d887e49b63ccba.1720142464.git.sbkarr@stappler.org>
+From: SBKarr <sbkarr@stappler.org>
+Date: Thu, 4 Jul 2024 08:21:59 +0800
+Subject: [PATCH 2/2] Windows clang fixes
+
+---
+ core/iwasm/common/iwasm_common.cmake    | 10 ++++++++--
+ core/shared/platform/windows/win_file.c |  4 ++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/core/iwasm/common/iwasm_common.cmake b/core/iwasm/common/iwasm_common.cmake
+index 951a8704..ba49218a 100644
+--- a/core/iwasm/common/iwasm_common.cmake
++++ b/core/iwasm/common/iwasm_common.cmake
+@@ -40,7 +40,10 @@ elseif (OSX_UNIVERSAL_BUILD EQUAL 1)
+ elseif (WAMR_BUILD_TARGET STREQUAL "X86_64" OR WAMR_BUILD_TARGET STREQUAL "AMD_64")
+   if (NOT WAMR_BUILD_SIMD EQUAL 1)
+     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
+-      if (NOT MINGW)
++      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
++        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
++        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s PROPERTY LANGUAGE C)
++      elseif (NOT MINGW)
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64.asm)
+       else ()
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64.s)
+@@ -50,7 +53,10 @@ elseif (WAMR_BUILD_TARGET STREQUAL "X86_64" OR WAMR_BUILD_TARGET STREQUAL "AMD_6
+     endif ()
+   else ()
+     if (WAMR_BUILD_PLATFORM STREQUAL "windows")
+-      if (NOT MINGW)
++      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
++        set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
++        set_property(SOURCE ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s PROPERTY LANGUAGE C)
++      elseif (NOT MINGW)
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_em64_simd.asm)
+       else ()
+         set (source_all ${c_source_all} ${IWASM_COMMON_DIR}/arch/invokeNative_mingw_x64_simd.s)
+diff --git a/core/shared/platform/windows/win_file.c b/core/shared/platform/windows/win_file.c
+index 63dfb5b5..26be04e5 100644
+--- a/core/shared/platform/windows/win_file.c
++++ b/core/shared/platform/windows/win_file.c
+@@ -1295,13 +1295,13 @@ os_readlinkat(os_file_handle handle, const char *path, char *buf,
+ 
+         if (wbufsize >= 4 && wbuf[0] == L'\\' && wbuf[1] == L'?'
+             && wbuf[2] == L'?' && wbuf[3] == L'\\') {
+-            // Starts with \??\ 
++            // Starts with \??\ .
+             if (wbufsize >= 6
+                 && ((wbuf[4] >= L'A' && wbuf[4] <= L'Z')
+                     || (wbuf[4] >= L'a' && wbuf[4] <= L'z'))
+                 && wbuf[5] == L':' && (wbufsize == 6 || wbuf[6] == L'\\'))
+                 {
+-                    // \??\<drive>:\ 
++                    // \??\<drive>:\ .
+                     wbuf += 4;
+                     wbufsize -= 4;
+                 }
+-- 
+2.34.1
+

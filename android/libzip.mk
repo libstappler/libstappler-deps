@@ -24,15 +24,10 @@ VARIANT ?= mbedtls
 
 LIBNAME = libzip
 
-PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBS="-lz -lm"
+include configure.mk
 
 CONFIGURE := \
+	$(CONFIGURE_CMAKE) \
 	-DBUILD_SHARED_LIBS=OFF \
 	-DENABLE_BZIP2=OFF \
 	-DENABLE_LZMA=OFF \

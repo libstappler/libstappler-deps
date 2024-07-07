@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2024-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,10 @@
 
 LIBNAME = wasm-micro-runtime
 
-CFLAGS := -I$(PREFIX)/include $(ARCH_CFLAGS)
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib
+include configure.mk
 
 CONFIGURE_ARGS := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
+	$(CONFIGURE_CMAKE) \
 	-DWAMR_BUILD_PLATFORM=linux \
 	-DWAMR_BUILD_INTERP=1 \
 	-DWAMR_BUILD_JIT=0 \
@@ -67,12 +60,10 @@ CONFIGURE_ARGS += \
 endif
 
 CONFIGURE := \
-	-DCMAKE_BUILD_TYPE=Release \
 	$(CONFIGURE_ARGS) \
 	-DWAMR_BUILD_FAST_INTERP=1
 
 CONFIGURE_DEBUG := \
-	-DCMAKE_BUILD_TYPE=Debug \
 	$(CONFIGURE_ARGS) \
 	-DWAMR_DISABLE_WRITE_GS_BASE=1 \
 	-DWAMR_BUILD_DEBUG_INTERP=1 \

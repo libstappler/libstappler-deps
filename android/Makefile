@@ -26,14 +26,14 @@ MAKE_ROOT := $(dir $(MAKE_FILE))
 
 MKDIR = mkdir -p
 
-NDK ?= "/home/sbkarr/Android/Ndk"
+NDK ?= $(HOME)/Android/Ndk
 NDKPATH = $(NDK)/toolchains/llvm/prebuilt/linux-x86_64/bin
 
 ifdef ARCH
 
 CC := $(NDKPATH)/$(NDKP)-clang
 CXX := $(NDKPATH)/$(NDKP)-clang++
-OPT := -O3
+OPT := -O3 -fPIC -DPIC
 
 LIBS := \
 	libjpeg.a \
@@ -46,12 +46,13 @@ LIBS := \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
+	libnghttp3.a \
 	libssl.a \
+	libgost.a \
 	libcurl-mbedtls.a \
 	libcurl-openssl.a \
 	libzip-mbedtls.a \
 	libzip-openssl.a \
-	libgost.a \
 	libvmlib-release.a \
 	libvmlib-debug.a
 
@@ -59,7 +60,7 @@ PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
 
 FORWARD_VARS := ARCH=$(ARCH) NDK=$(NDK) NDKP=$(NDKP) NDKPATH=$(NDKPATH) TARGET=$(TARGET) \
-	PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT)
+	PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT="$(OPT)" LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT)
 
 ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
 
@@ -93,9 +94,6 @@ $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
 
-# HTTP3 temporary disabled for android
-# waiting for proper library, that can be build automatically
-
 $(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
 	$(MAKE) -f $(MAKE_ROOT)openssl.mk $(FORWARD_VARS)
 
@@ -119,6 +117,9 @@ $(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
 
 $(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a: $(MAKE_ROOT)wamr.mk
 	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libnghttp3.a: $(MAKE_ROOT)nghttp3.mk
+	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
 
 .PHONY: all
 

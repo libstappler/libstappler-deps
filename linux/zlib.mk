@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,17 +28,13 @@ CONFIGURE := \
 	--libdir=$(PREFIX)/lib \
 	--static --const
 
-ifneq ($(ARCH),aarch64)
-CONFIGURE +=  --64
-endif
-
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
 		CC=$(CC) CXX=$(CXX) \
-		CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
+		CFLAGS="$(OPT)" \
 		CPP="$(CC) -E" \
-		CPPFLAGS="-I$(PREFIX)/include $(ARCH_CFLAGS)" \
+		CPPFLAGS="-I$(PREFIX)/include" \
 		LDFLAGS="-L$(PREFIX)/lib" \
 		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
 		make -j8; \

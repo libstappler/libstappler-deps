@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,11 @@
 
 LIBNAME = giflib
 
-AR := ar
-
-ifeq ($(ARCH),e2k)
-AR := e2k-linux-ar
-endif
-
-ifeq ($(ARCH),aarch64)
-AR := aarch64-linux-gnu-ar
-endif
+include configure.mk
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) -std=gnu99 -fPIC -Wall $(ARCH_CFLAGS)" CC=$(CC) AR=$(AR) libgif.a
+	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) -std=gnu99 -Wall" CC=$(CC) AR=$(AR) libgif.a
 	mv -f $(LIB_SRC_DIR)/$(LIBNAME)/libgif.a $(PREFIX)/lib/libgif.a
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gif_lib.h $(PREFIX)/include/gif_lib.h

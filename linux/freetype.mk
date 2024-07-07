@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2024 Stappler LLC <admin@stappler.dev>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,10 @@
 
 LIBNAME = freetype
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC $(ARCH_CFLAGS)" \
-	CPP="$(CC) -E $(ARCH_CFLAGS)" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBPNG_CFLAGS="-I$$(PREFIX)/include" \
-	LIBPNG_LIBS="-L$(PREFIX)/lib -lpng16" \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--with-bzip2=no \
 	--with-zlib=yes \
 	--with-png=yes \
@@ -46,14 +34,6 @@ CONFIGURE := \
 	--with-brotli=yes \
 	--enable-static=yes \
 	--enable-shared=no
-
-ifeq ($(ARCH),e2k)
-CONFIGURE += --host=e2k-linux
-endif
-
-ifeq ($(ARCH),aarch64)
-CONFIGURE += --host=aarch64-linux-gnu
-endif
 
 all:
 	@mkdir -p $(LIBNAME)

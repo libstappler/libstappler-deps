@@ -22,7 +22,9 @@
 
 LIBNAME = libuidna
 
-CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) AR=$(NDKPATH)/llvm-ar
+include configure.mk
+
+CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) CFLAGS= CFLAGS_OPTIMIZE="$(OPT)" AR=$(AR)
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include

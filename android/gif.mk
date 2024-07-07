@@ -22,9 +22,11 @@
 
 LIBNAME = giflib
 
+include configure.mk
+
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) -std=gnu99 -fPIC -Wall" CC=$(CC) libgif.a
+	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) -std=gnu99 -Wall" CC=$(CC) AR=$(AR) libgif.a
 	mv -f $(LIB_SRC_DIR)/$(LIBNAME)/libgif.a $(PREFIX)/lib/libgif.a
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gif_lib.h $(PREFIX)/include/gif_lib.h
