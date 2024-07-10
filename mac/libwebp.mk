@@ -22,24 +22,10 @@
 
 LIBNAME = libwebp
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBS="-lz -lm" \
-	LIBPNG_CONFIG="$(PREFIX)/bin/libpng16-config" \
-	--host=$(TARGET) \
-	--target=$(TARGET) \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--disable-gl \
 	--disable-sdl \
 	--disable-tiff \

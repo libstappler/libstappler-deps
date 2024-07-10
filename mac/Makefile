@@ -39,11 +39,12 @@ LIBS := \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
-	libcurl-mbedtls.a \
-	libzip-mbedtls.a \
+	libnghttp3.a \
 	libssl.a \
 	libgost.a \
+	libcurl-mbedtls.a \
 	libcurl-openssl.a \
+	libzip-mbedtls.a \
 	libzip-openssl.a \
 	libvmlib-release.a \
 	libvmlib-debug.a
@@ -52,14 +53,14 @@ CC := clang
 CXX := clang++
 ARCH_CFLAGS :=
 
-OPT := -O3
+OPT := -O3 -fPIC -DPIC
 
 OS_VERSION_TARGET := 11.0
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
 
-FORWARD_VARS := ARCH=$(ARCH) TARGET=$(TARGET) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) \
+FORWARD_VARS := ARCH=$(ARCH) TARGET=$(TARGET) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) OPT="$(OPT)" LIB_SRC_DIR=$(LIB_SRC_DIR) \
 	MAKE_ROOT=$(MAKE_ROOT) OS_VERSION_TARGET=$(OS_VERSION_TARGET)
 
 ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
@@ -102,6 +103,9 @@ $(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a 
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
+
+$(PREFIX)/lib/libnghttp3.a: $(MAKE_ROOT)nghttp3.mk
+	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
 
 $(PREFIX)/lib/libzip-openssl.a: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS) VARIANT=openssl

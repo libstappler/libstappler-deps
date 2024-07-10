@@ -24,18 +24,10 @@ VARIANT ?= mbedtls
 
 LIBNAME = curl
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC -target $(TARGET) -arch $(ARCH) -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib -framework CoreFoundation -framework SystemConfiguration -framework CoreFoundation -framework Security -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
+	$(CONFIGURE_AUTOCONF) \
 	--enable-optimize \
 	--enable-symbol-hiding \
 	--enable-http \
@@ -78,8 +70,7 @@ CONFIGURE := \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
-	--without-nghttp3 \
-	--without-ngtcp2 \
+	--without-nghttp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem)
 
 ifeq ($(VARIANT),mbedtls)
@@ -93,7 +84,9 @@ ifeq ($(VARIANT),openssl)
 CONFIGURE += \
 	--without-mbedtls \
 	--with-openssl \
-	--without-gnutls
+	--without-gnutls \
+	--with-nghttp3 \
+	--with-openssl-quic
 endif
 
 all:

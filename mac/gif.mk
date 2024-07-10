@@ -22,17 +22,13 @@
 
 LIBNAME = giflib
 
-export CC=$(CC)
-export CXX=$(CXX)
-export CFLAGS=$(OPT) -fPIC -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET)
-export LDFLAGS=-mmacosx-version-min=$(OS_VERSION_TARGET)
-export CPP=$(CC) -E
-export CPPFLAGS=-I$(PREFIX)/include
-export PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig
+include configure.mk
+
+CFLAGS := $(OPT) -std=gnu99 -Wall -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET)
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CC=$(CC) CFLAGS="$(CFLAGS)" libgif.a
+	$(MAKE) -j8 -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(CFLAGS)" CC=$(CC) AR=$(AR) libgif.a
 	mv -f $(LIB_SRC_DIR)/$(LIBNAME)/libgif.a $(PREFIX)/lib/libgif.a
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gif_lib.h $(PREFIX)/include/gif_lib.h

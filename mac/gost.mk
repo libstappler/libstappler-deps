@@ -20,52 +20,19 @@
 
 .DEFAULT_GOAL := all
 
-DEBUG ?= 0
-
 LIBNAME = openssl-gost-engine
 
-CFLAGS := -fPIC -I$(PREFIX)/include $(ARCH_CFLAGS) -mmacosx-version-min=$(OS_VERSION_TARGET)
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -mmacosx-version-min=$(OS_VERSION_TARGET)
-
-CONFIGURE := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_PREFIX_PATH=$(PREFIX) \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
-	-DCMAKE_OSX_DEPLOYMENT=$(OS_VERSION_TARGET) \
-	-DCMAKE_OSX_ARCHITECTURES=$(ARCH)
-
-ifeq ($(DEBUG),1)
+include configure.mk
 
 all:
 	rm -rf $(LIBNAME)
 	cp -r $(LIB_SRC_DIR)/$(LIBNAME) $(LIBNAME)
 	cd $(LIBNAME); \
-		cmake $(CONFIGURE) -DCMAKE_BUILD_TYPE=Debug -DOPENSSL_USE_STATIC_LIBS=TRUE \
-			-DCMAKE_VERBOSE_MAKEFILE=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
-		make gost_engine_static
-	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
-	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
-	
-
-else
-
-all:
-	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); \
-		cmake $(CONFIGURE) -DCMAKE_BUILD_TYPE=Release -DOPENSSL_USE_STATIC_LIBS=TRUE \
-			-DCMAKE_VERBOSE_MAKEFILE=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
+		cmake $(CONFIGURE_CMAKE) -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/e_gost_err.h $(PREFIX)/include
 	rm -rf $(LIBNAME)
-
-endif
 
 .PHONY: all

@@ -22,8 +22,10 @@
 
 LIBNAME = libuidna
 
+include configure.mk
+
 CONFIGURE := OUTDIR=$(abspath $(LIBNAME)) LIBNAME=libidn2 PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) \
-	CFLAGS="-fPIC -target $(TARGET) -arch $(ARCH) -std=c++17 -mmacosx-version-min=$(OS_VERSION_TARGET)" CFLAGS_OPTIMIZE=$(OPT)
+	CFLAGS="-target $(TARGET) -arch $(ARCH) -std=c++17 -mmacosx-version-min=$(OS_VERSION_TARGET)" CFLAGS_OPTIMIZE="$(OPT)"
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include

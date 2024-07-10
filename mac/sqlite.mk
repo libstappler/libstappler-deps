@@ -22,12 +22,16 @@
 
 LIBNAME = sqlite
 
+include configure.mk
+
+CFLAGS := $(OPT) -std=gnu99 -Wall -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET)
+
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		$(CC) $(OPT) -fPIC -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
-		ar rcs libsqlite3.a sqlite3.o
+		$(CC) $(CFLAGS) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
+		$(AR) rcs libsqlite3.a sqlite3.o
 	mv -f $(LIBNAME)/libsqlite3.a $(PREFIX)/lib/
 	rm -rf $(LIBNAME)
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/*.h $(PREFIX)/include/

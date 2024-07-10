@@ -20,9 +20,9 @@
 
 .DEFAULT_GOAL := all
 
-DEBUG ?= 0
-
 LIBNAME = openssl
+
+include configure.mk
 
 CONFIGURE := "darwin64-$(ARCH)" \
 	--prefix=$(PREFIX) \
@@ -36,7 +36,8 @@ CONFIGURE := "darwin64-$(ARCH)" \
 	no-dso \
 	no-filenames \
 	no-shared \
-	no-autoload-config
+	no-autoload-config \
+	-mmacosx-version-min=$(OS_VERSION_TARGET)
 
 ifeq ($(DEBUG),1)
 

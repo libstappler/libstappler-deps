@@ -22,32 +22,16 @@
 
 LIBNAME = freetype
 
+include configure.mk
+
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT) -fPIC -target $(TARGET) -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="-I$(PREFIX)/include" \
-	LDFLAGS="-L$(PREFIX)/lib -mmacosx-version-min=$(OS_VERSION_TARGET)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBPNG_CFLAGS="-I$$(PREFIX)/include" \
-	LIBPNG_LIBS="-L$(PREFIX)/lib -lpng16" \
-	--host=$(TARGET) \
-	--target=$(TARGET) \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--with-bzip2=no \
 	--with-zlib=yes \
 	--with-png=yes \
 	--with-harfbuzz=no \
 	--with-pic=yes \
-	--with-brotli=yes \
-	--enable-static=yes \
-	--enable-shared=no
+	--with-brotli=yes
 
 all:
 	@mkdir -p $(LIBNAME)

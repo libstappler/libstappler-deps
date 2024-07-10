@@ -22,25 +22,11 @@
 
 LIBNAME = brotli
 
-CFLAGS := -I$(PREFIX)/include $(ARCH_CFLAGS) -mmacosx-version-min=$(OS_VERSION_TARGET)
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -mmacosx-version-min=$(OS_VERSION_TARGET)
-
-CONFIGURE := \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_PREFIX_PATH=$(PREFIX) \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
-	-DCMAKE_OSX_DEPLOYMENT=$(OS_VERSION_TARGET) \
-	-DCMAKE_OSX_ARCHITECTURES=$(ARCH)
+include configure.mk
 
 all:
 	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); cmake $(CONFIGURE_CMAKE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release --target install
 	if [ -d "$(PREFIX)/lib64" ]; then cp -rf $(PREFIX)/lib64/* $(PREFIX)/lib/; fi
 	if [ -d "$(PREFIX)/lib64" ]; then rm -rf $(PREFIX)/lib64; fi
