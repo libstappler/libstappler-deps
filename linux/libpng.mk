@@ -39,6 +39,7 @@ all:
 		make install
 	rm -rf $(LIBNAME)
 	cp -f $(PREFIX)/include/libpng16/* $(PREFIX)/include
+	cp -f $(PREFIX)/lib/pkgconfig/libpng16.pc $(PREFIX)/lib/pkgconfig/libpng.pc
 	rm -rf $(PREFIX)/include/libpng16
 	rm -rf $(PREFIX)/bin/png*
 

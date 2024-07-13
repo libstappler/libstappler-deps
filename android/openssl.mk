@@ -55,6 +55,10 @@ CONFIGURE := android-$(ANDROID_ARCH) \
 	no-autoload-config \
 	$(OPT)
 
+ifeq ($(ARCH),armeabi-v7a)
+CONFIGURE += no-asm
+endif
+
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
