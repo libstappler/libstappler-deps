@@ -60,12 +60,12 @@ CONFIGURE := \
 	--disable-manual \
 	--disable-ntlm \
 	--disable-versioned-symbols \
-	--disable-verbose  \
+	--disable-verbose \
 	--disable-sspi \
-	--disable-ntlm-wb \
 	--with-zlib \
 	--with-brotli \
 	--with-libidn2 \
+	--without-zstd \
 	--without-libpsl \
 	--without-ca-path \
 	--without-libssh2 \
