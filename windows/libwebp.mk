@@ -22,33 +22,11 @@
 
 LIBNAME = libwebp
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unknown-pragmas -Wno-unused-local-typedef
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include $(WARN) -msse2
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld-link --target=$(TARGET) -Xlinker -nodefaultlibs
+include configure.mk
 
 CONFIGURE := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_RC_COMPILER=$(CC) \
-	-DCMAKE_SYSTEM_NAME=Windows \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
-	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+	$(CONFIGURE_CMAKE)
 	-DWEBP_LINK_STATIC=ON
-
-ifdef RELEASE
-CFLAGS +=  --dependent-lib=libcmt
-LDFLAGS += -llibcmt -llibucrt -lvcruntime
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
-else
-CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibcmtd -llibucrtd -lvcruntimed
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
-endif
 
 all:
 	rm -rf $(LIBNAME)

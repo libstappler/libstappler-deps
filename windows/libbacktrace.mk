@@ -22,34 +22,10 @@
 
 LIBNAME = libbacktrace
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibucrt -llibcmt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibucrtd -llibcmtd -llibvcruntimed
-endif
+include configure.mk
 
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="$(CFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--host=$(ARCH)-windows \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(MAKE_ROOT)$(LIBNAME)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes
+	$(CONFIGURE_AUTOCONF)
 
 all:
 	@mkdir -p $(LIBNAME)

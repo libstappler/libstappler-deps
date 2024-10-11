@@ -22,39 +22,14 @@
 
 LIBNAME = libpng
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibcmt -llibucrt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibcmtd -llibucrtd -llibvcruntimed
-endif
+include configure.mk
 
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="$(CFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--host=$(ARCH)-windows \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(PREFIX)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
-	--enable-shared=no \
-	--enable-static=yes \
+	$(CONFIGURE_AUTOCONF) \
 	--disable-unversioned-links \
 	--disable-unversioned-libpng-pc \
 	--disable-unversioned-libpng-config \
-	--disable-dependency-tracking \
-	--with-sysroot=$(PREFIX)
+	--disable-dependency-tracking
 
 all:
 	rm -rf $(LIBNAME)

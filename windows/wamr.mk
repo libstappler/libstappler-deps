@@ -22,26 +22,12 @@
 
 LIBNAME = wasm-micro-runtime
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter -Wno-sign-compare -Wno-unknown-pragmas
-CFLAGS_INIT := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 \
-	-D_CRT_USE_BUILTIN_OFFSETOF -Dgetcwd=_getcwd
-LDFLAGS_INIT := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld-link --target=$(TARGET) -lkernel32 -loldnames -lbcrypt -lpathcch -lntdll
-export CFLAGS := $(CFLAGS_INIT)
-export LDFLAGS := $(LDFLAGS_INIT)
+LIB_CFLAGS := -D_CRT_USE_BUILTIN_OFFSETOF -Dgetcwd=_getcwd -DWASM_RUNTIME_API_EXTERN= -DWASM_API_EXTERN= -include direct.h
+LIB_LIBS := -lbcrypt -lpathcch -lntdll
 
-CONFIGURE_ARGS := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS_INIT)" \
-	-DCMAKE_CXX_FLAGS_INIT="-std=gnu++20 $(CFLAGS_INIT)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS_INIT)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS_INIT)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX)\
-	-DCMAKE_RC_COMPILER=$(CC) \
-	-DCMAKE_SYSTEM_NAME=Windows \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
-	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+include configure.mk
+
+CONFIGURE_WAMR := \
 	-DWAMR_BUILD_PLATFORM=windows \
 	-DWAMR_BUILD_TARGET=X86_64 \
 	-DWAMR_BUILD_INTERP=1 \
@@ -60,19 +46,14 @@ CONFIGURE_ARGS := \
 	-DWAMR_BUILD_TARGET=X86_64 \
 	-DWAMR_BUILD_AOT=1
 
-ifdef RELEASE
-CONFIGURE_ARGS += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
-else
-CFLAGS += -g -Xclang -gcodeview -D_DEBUG
-CONFIGURE_ARGS += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
-endif
-
 CONFIGURE := \
-	$(CONFIGURE_ARGS) \
+	$(CONFIGURE_CMAKE) \
+	$(CONFIGURE_WAMR) \
 	-DWAMR_BUILD_FAST_INTERP=1
 
 CONFIGURE_DEBUG := \
-	$(CONFIGURE_ARGS) \
+	$(CONFIGURE_CMAKE) \
+	$(CONFIGURE_WAMR) \
 	-DWAMR_DISABLE_WRITE_GS_BASE=1 \
 	-DWAMR_BUILD_DEBUG_INTERP=1 \
 	-DWAMR_BUILD_DEBUG_AOT=1 \
@@ -90,15 +71,15 @@ $(PREFIX)/include/wamr/lib_export.h:
 
 $(PREFIX)/lib/vmlib-release.lib:
 	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
-	cd $(LIBNAME); cmake  --build . --config Release
+	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake  --build . --config Release
 	cp -f $(LIBNAME)/vmlib.lib $(PREFIX)/lib/vmlib-release.lib
 	rm -rf $(LIBNAME)
 
 $(PREFIX)/lib/vmlib-debug.lib:
 	@mkdir -p $(LIBNAME)
-	cd $(LIBNAME); cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
-	cd $(LIBNAME); cmake  --build . --config Debug
+	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
+	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake  --build . --config Debug
 	cp -f $(LIBNAME)/vmlib.lib $(PREFIX)/lib/vmlib-debug.lib
 	rm -rf $(LIBNAME)
 

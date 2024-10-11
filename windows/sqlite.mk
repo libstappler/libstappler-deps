@@ -22,24 +22,13 @@
 
 LIBNAME = sqlite
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibucrt -llibcmt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibucrtd -llibcmtd -llibvcruntimed
-endif
+include configure.mk
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		$(CC) $(OPT) $(CFLAGS) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
+		$(CC) $(CPPFLAGS) $(CFLAGS) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
 		ar rcs sqlite3.lib sqlite3.o
 	mv -f $(LIBNAME)/sqlite3.lib $(PREFIX)/lib/
 	rm -rf $(LIBNAME)

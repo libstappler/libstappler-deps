@@ -22,18 +22,7 @@
 
 LIBNAME = openssl
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-incompatible-pointer-types
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include $(WARN) -D_MT -include intrin.h
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibucrt -llibcmt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibucrtd -llibcmtd -llibvcruntimed
-endif
+include configure.mk
 
 CONFIGURE := mingw-xwin-clang-x64 \
 	--prefix=$(PREFIX) \
@@ -55,7 +44,7 @@ all:
 	cp -f replacements/openssl/49-xwin-clang.conf $(LIB_SRC_DIR)/$(LIBNAME)/Configurations
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		export CFLAGS="$(CFLAGS)"; \
+		export CFLAGS="$(CPPFLAGS) $(CFLAGS)"; \
 		export LDFLAGS="$(LDFLAGS)"; \
 		export PATH="$(REPLACEMENTS_BIN):$(PATH)"; \
 		export XWIN_DIR="$(XWIN_DIR)"; \

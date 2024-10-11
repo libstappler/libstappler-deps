@@ -22,31 +22,27 @@
 
 LIBNAME = mbedtls
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter -Wno-sign-compare -Wno-unknown-pragmas
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -msse2 -maes -mpclmul -include wmmintrin.h -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
+include configure.mk
 
 CONFIGURE := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_RC_COMPILER=$(CC) \
 	-DCMAKE_SYSTEM_NAME=Windows \
+	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
+	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
+	-DCMAKE_PREFIX_PATH=$(PREFIX) \
 	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
+	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
+	-DCMAKE_C_COMPILER=clang-cl \
+	-DCMAKE_RC_COMPILER=llvm-rc \
+	-DCMAKE_C_FLAGS_INIT="$(CPPFLAGS)" \
+	-DCMAKE_MT=llvm-mt \
+	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(addprefix /libpath:,$(CRT_LIB))" \
+	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(addprefix /libpath:,$(CRT_LIB))" \
 	-DMBEDTLS_FATAL_WARNINGS=OFF
 
 ifdef RELEASE
-CFLAGS +=  --dependent-lib=libcmt
-LDFLAGS += -llibcmt -llibucrt -lvcruntime
 CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
 else
-CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibcmtd -llibucrtd -lvcruntimed
 CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
 endif
 

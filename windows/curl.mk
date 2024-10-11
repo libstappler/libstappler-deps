@@ -24,34 +24,11 @@ VARIANT ?= mbedtls
 
 LIBNAME = curl
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic -Wno-unused-parameter -Wno-sign-compare -Wno-unknown-pragmas
-CPPFLAGS :=  --target=$(TARGET) $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include -D_MT -include time.h
-CFLAGS := $(WARN)
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs
-LIBS := -lkernel32 -loldnames -lws2_32
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LIBS += -llibucrt -llibcmt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LIBS += -llibucrtd -llibcmtd -llibvcruntimed
-endif
+include configure.mk
 
 CONFIGURE := \
-	CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(CFLAGS)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="$(CPPFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	--host=$(ARCH)-windows \
-	--includedir=$(PREFIX)/include \
-	--libdir=$(PREFIX)/lib \
-	--bindir=$(PREFIX)/bin \
-	--datarootdir=$(MAKE_ROOT)$(LIBNAME)/share \
-	--prefix=$(PREFIX) \
+	$(CONFIGURE_AUTOCONF) \
+	CPPFLAGS="$(CPPFLAGS) -include time.h -DNGHTTP3_STATICLIB" \
 	--enable-optimize \
 	--enable-symbol-hiding \
 	--enable-http \
@@ -85,9 +62,9 @@ CONFIGURE := \
 	--disable-versioned-symbols \
 	--disable-verbose  \
 	--disable-sspi \
-	--disable-ntlm-wb  \
 	--with-zlib \
 	--with-brotli \
+	--without-zstd \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
@@ -112,7 +89,9 @@ CONFIGURE += \
 	--without-mbedtls \
 	--with-openssl \
 	--without-gnutls \
-	LIBS="-ladvapi32 -luser32 -lcrypt32"
+	--with-nghttp3 \
+	--with-openssl-quic \
+	LIBS="$(LIBS) -ladvapi32 -luser32 -lcrypt32"
 endif
 
 all:

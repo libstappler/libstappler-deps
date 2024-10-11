@@ -22,22 +22,11 @@
 
 LIBNAME = giflib
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include -include sp_compat.h --target=$(TARGET) $(WARN) -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
-
-ifdef RELEASE
-CFLAGS += -Xclang --dependent-lib=libcmt $(OPT)
-LDFLAGS += -llibucrt -llibcmt -llibvcruntime
-else
-CFLAGS += -Xclang --dependent-lib=libcmtd -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibucrtd -llibcmtd -llibvcruntimed
-endif
+include configure.mk
 
 all:
 	@mkdir -p $(PREFIX)/lib $(PREFIX)/include
 	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) clean
-	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(CFLAGS)" CC="$(CC)" libgif.a
+	$(MAKE) -C $(LIB_SRC_DIR)/$(LIBNAME) CFLAGS="$(OPT) $(CPPFLAGS) $(CFLAGS) -include sp_compat.h" CC="$(CC)" libgif.a
 	mv -f $(LIB_SRC_DIR)/$(LIBNAME)/libgif.a $(PREFIX)/lib/gif.lib
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gif_lib.h $(PREFIX)/include/gif_lib.h

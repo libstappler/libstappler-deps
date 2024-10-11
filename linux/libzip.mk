@@ -41,7 +41,7 @@ CONFIGURE := \
 
 ifeq ($(VARIANT),mbedtls)
 CONFIGURE += \
-	-DMbedTLS_LIBRARY=$(PREFIX)/lib/libmbedtls.a -DMbedTLS_INCLUDE_DIR=$(PREFIX)/include \
+	-DMbedTLS_LIBRARY="$(PREFIX)/lib/libmbedcrypto.a" -DMbedTLS_INCLUDE_DIR=$(PREFIX)/include \
 	-DENABLE_GNUTLS=OFF \
 	-DENABLE_COMMONCRYPTO=OFF \
 	-DENABLE_OPENSSL=OFF

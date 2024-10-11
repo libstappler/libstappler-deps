@@ -22,28 +22,10 @@
 
 LIBNAME = libzip
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include --target=$(TARGET) $(WARN) -D_MT
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld --target=$(TARGET) -Xlinker -nodefaultlibs -lkernel32 -loldnames
-
-PRE_CONFIGURE := CC=$(CC) CXX=$(CXX) \
-	CFLAGS="$(OPT)" \
-	CPP="$(CC) -E" \
-	CPPFLAGS="$(CFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	PKG_CONFIG_PATH="$(PREFIX)/lib/pkgconfig" \
-	LIBS="-lz"
+include configure.mk
 
 CONFIGURE := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_RC_COMPILER=$(CC) \
-	-DCMAKE_SYSTEM_NAME=Windows \
-	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+	$(CONFIGURE_CMAKE) \
 	-DBUILD_SHARED_LIBS=OFF \
 	-DENABLE_BZIP2=OFF \
 	-DENABLE_LZMA=OFF \
@@ -52,23 +34,13 @@ CONFIGURE := \
 	-DBUILD_REGRESS=OFF \
 	-DBUILD_EXAMPLES=OFF \
 	-DBUILD_DOC=OFF \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DZLIB_LIBRARY="-lz" \
 	-DENABLE_MBEDTLS=OFF \
 	-DENABLE_GNUTLS=OFF \
 	-DENABLE_COMMONCRYPTO=OFF \
 	-DENABLE_OPENSSL=OFF \
-	-DENABLE_WINDOWS_CRYPTO=ON
-
-ifdef RELEASE
-CFLAGS +=  --dependent-lib=libcmt
-LDFLAGS += -llibcmt -llibucrt -lvcruntime
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
-else
-CFLAGS +=  --dependent-lib=libcmtd  -g -Xclang -gcodeview -D_DEBUG
-LDFLAGS += -llibcmtd -llibucrtd -lvcruntimed
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
-endif
+	-DENABLE_WINDOWS_CRYPTO=ON \
+	-DZLIB_LIBRARY="$(PREFIX)/lib/z.lib" \
+	-DZLIB_INCLUDE_DIR="$(PREFIX)/include"
 
 all:
 	@mkdir -p $(LIBNAME)

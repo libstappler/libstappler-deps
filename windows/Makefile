@@ -44,23 +44,23 @@ CRT_INCLUDE += \
 	-I$(XWIN_DIR)/splat/sdk/include/shared
 
 CRT_LIB += \
-	-L$(XWIN_DIR)/splat/crt/lib/$(ARCH) \
-	-L$(XWIN_DIR)/splat/sdk/lib/um/$(ARCH) \
-	-L$(XWIN_DIR)/splat/sdk/lib/ucrt/$(ARCH) \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/ucrt.msi/lib/ucrt/$(ARCH_LOCAL)
+	$(XWIN_DIR)/splat/crt/lib/$(ARCH) \
+	$(XWIN_DIR)/splat/sdk/lib/um/$(ARCH) \
+	$(XWIN_DIR)/splat/sdk/lib/ucrt/$(ARCH) \
+	$(XWIN_DIR)/.xwin-cache/unpack/ucrt.msi/lib/ucrt/$(ARCH_LOCAL)
 
 ifdef RELEASE
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.39.17.9.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
+	$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.41.17.11.CRT.$(ARCH_LOCAL).Store.base.vsix/lib/$(ARCH_LOCAL)
 else
 CRT_LIB += \
-	-L$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.39.17.9.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
+	$(XWIN_DIR)/.xwin-cache/unpack/Microsoft.VC.14.41.17.11.CRT.$(ARCH_LOCAL).Desktop.base.vsix/lib/$(ARCH_LOCAL)
 endif
 
 endif
 
-CC := clang-16
-CXX := clang++-16
+CC := clang
+CXX := clang++
 LD := lld-link
 OPT := -O3
 
@@ -78,6 +78,7 @@ LIBS := \
 	zip.lib \
 	ssl.lib \
 	gost.lib \
+	nghttp3.lib \
 	curl-mbedtls.lib \
 	curl-openssl.lib \
 	vmlib-release.lib \
@@ -132,6 +133,9 @@ $(PREFIX)/lib/sqlite3.lib: $(MAKE_ROOT)sqlite.mk
 $(PREFIX)/lib/mbedtls.lib: $(MAKE_ROOT)mbedtls.mk
 	$(MAKE) -f $(MAKE_ROOT)mbedtls.mk $(FORWARD_VARS)
 
+$(PREFIX)/lib/nghttp3.lib: $(MAKE_ROOT)nghttp3.mk
+	$(MAKE) -f $(MAKE_ROOT)nghttp3.mk $(FORWARD_VARS)
+
 $(PREFIX)/lib/zip.lib: $(MAKE_ROOT)libzip.mk $(PREFIX)/lib/brotlienc.lib $(PREFIX)/lib/z.lib
 	$(MAKE) -f $(MAKE_ROOT)libzip.mk $(FORWARD_VARS)
 
@@ -141,7 +145,7 @@ $(PREFIX)/lib/ssl.lib: $(MAKE_ROOT)openssl.mk
 $(PREFIX)/lib/gost.lib: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/ssl.lib
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/backtrace.lib
+$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/backtrace.lib $(PREFIX)/lib/nghttp3.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
 $(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib $(PREFIX)/lib/backtrace.lib

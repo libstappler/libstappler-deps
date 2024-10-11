@@ -22,35 +22,13 @@
 
 LIBNAME = brotli
 
-WARN := -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-nonportable-include-path -Wno-pragma-pack \
-	-Wno-microsoft-anon-tag -Wno-ignored-pragma-intrinsic
-CFLAGS := $(REPLACEMENTS_INCLUDE) $(CRT_INCLUDE) -I$(PREFIX)/include $(WARN) -msse2
-LDFLAGS := $(CRT_LIB) -L$(PREFIX)/lib -fuse-ld=lld-link --target=$(TARGET) -Xlinker -nodefaultlibs
-
-CONFIGURE := \
-	-DCMAKE_C_COMPILER_TARGET="$(TARGET)" \
-	-DCMAKE_C_FLAGS_INIT="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	-DCMAKE_RC_COMPILER=$(CC) \
-	-DCMAKE_SYSTEM_NAME=Windows \
-	-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-	-DBUILD_SHARED_LIBS=OFF \
-	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW
-
-ifdef RELEASE
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_BUILD_TYPE=Release
-else
-CFLAGS +=  -g -Xclang -gcodeview -D_DEBUG
-CONFIGURE += -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DCMAKE_BUILD_TYPE=Debug
-endif
+include configure.mk
 
 all:
 	rm -rf $(LIBNAME)
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
+		cmake $(CONFIGURE_CMAKE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release --target install
 	sed -i -e 's/ -lbrotlidec/ -lbrotlidec -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlidec.pc
 	sed -i -e 's/ -lbrotlienc/ -lbrotlienc -lbrotlicommon/g' $(PREFIX)/lib/pkgconfig/libbrotlienc.pc

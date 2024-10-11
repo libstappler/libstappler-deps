@@ -14,8 +14,8 @@
 
 #include <immintrin.h>
 
-#if (!(defined(_MSC_VER) || defined(__SCE__)) || __has_feature(modules) ||      \
-    defined(__3dNOW__)) && defined(_M_IX86)
+#if !(defined(_MSC_VER) || defined(__SCE__)) || __has_feature(modules) ||      \
+    defined(__3dNOW__)
 #include <mm3dnow.h>
 #endif
 

@@ -1,7 +1,7 @@
-From 86faaa572189c230d1a036c638d887e49b63ccba Mon Sep 17 00:00:00 2001
-Message-Id: <86faaa572189c230d1a036c638d887e49b63ccba.1720142464.git.sbkarr@stappler.org>
+From 6580228d93ba7c61d9ca58bfdea412a05b75ccf6 Mon Sep 17 00:00:00 2001
+Message-ID: <6580228d93ba7c61d9ca58bfdea412a05b75ccf6.1728559397.git.sbkarr@stappler.org>
 From: SBKarr <sbkarr@stappler.org>
-Date: Thu, 4 Jul 2024 08:20:22 +0800
+Date: Tue, 8 Oct 2024 07:38:39 +0800
 Subject: [PATCH 1/2] Initial e2k support
 
 ---
@@ -16,10 +16,10 @@ Subject: [PATCH 1/2] Initial e2k support
  8 files changed, 399 insertions(+), 8 deletions(-)
 
 diff --git a/build-scripts/config_common.cmake b/build-scripts/config_common.cmake
-index edff5b84..ed83276f 100644
+index d4dd2c0d..eb5dff5a 100644
 --- a/build-scripts/config_common.cmake
 +++ b/build-scripts/config_common.cmake
-@@ -43,6 +43,8 @@ elseif (WAMR_BUILD_TARGET STREQUAL "RISCV32_ILP32")
+@@ -45,6 +45,8 @@ elseif (WAMR_BUILD_TARGET STREQUAL "RISCV32_ILP32")
    add_definitions(-DBUILD_TARGET_RISCV32_ILP32)
  elseif (WAMR_BUILD_TARGET STREQUAL "ARC")
    add_definitions(-DBUILD_TARGET_ARC)
@@ -29,12 +29,12 @@ index edff5b84..ed83276f 100644
    message (FATAL_ERROR "-- WAMR build target isn't set")
  endif ()
 diff --git a/core/config.h b/core/config.h
-index 2f3e401d..29f5d082 100644
+index 7c783dd3..e28430db 100644
 --- a/core/config.h
 +++ b/core/config.h
-@@ -21,7 +21,8 @@
-     && !defined(BUILD_TARGET_RISCV64_LP64) \
+@@ -22,7 +22,8 @@
      && !defined(BUILD_TARGET_RISCV32_ILP32D) \
+     && !defined(BUILD_TARGET_RISCV32_ILP32F) \
      && !defined(BUILD_TARGET_RISCV32_ILP32) \
 -    && !defined(BUILD_TARGET_ARC)
 +    && !defined(BUILD_TARGET_ARC) \
@@ -42,7 +42,7 @@ index 2f3e401d..29f5d082 100644
  /* clang-format on */
  #if defined(__x86_64__) || defined(__x86_64)
  #define BUILD_TARGET_X86_64
-@@ -47,6 +48,8 @@
+@@ -52,6 +53,8 @@
  #define BUILD_TARGET_RISCV32_ILP32D
  #elif defined(__arc__)
  #define BUILD_TARGET_ARC
@@ -51,7 +51,7 @@ index 2f3e401d..29f5d082 100644
  #else
  #error "Build target isn't set"
  #endif
-@@ -252,7 +255,7 @@
+@@ -257,7 +260,7 @@
  
  #ifndef WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS
  #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_X86_64) \
@@ -60,7 +60,7 @@ index 2f3e401d..29f5d082 100644
  #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 1
  #else
  #define WASM_CPU_SUPPORTS_UNALIGNED_ADDR_ACCESS 0
-@@ -393,7 +396,7 @@
+@@ -402,7 +405,7 @@
  #define GC_HEAP_SIZE_MAX (1024 * 1024 * 1024)
  
  /* Default wasm stack size of each app */
@@ -220,12 +220,12 @@ index 15895b8e..951a8704 100644
    message (FATAL_ERROR "Build target isn't set")
  endif ()
 diff --git a/core/iwasm/common/wasm_runtime_common.c b/core/iwasm/common/wasm_runtime_common.c
-index f18cd784..0fccca99 100644
+index f54ac4ab..f05c340f 100644
 --- a/core/iwasm/common/wasm_runtime_common.c
 +++ b/core/iwasm/common/wasm_runtime_common.c
-@@ -5019,6 +5019,281 @@ fail:
-           || defined(BUILD_TARGET_RISCV32_ILP32)  \
-           || defined(BUILD_TARGET_ARC) */
+@@ -5985,6 +5985,281 @@ fail:
+                  || defined(BUILD_TARGET_RISCV64_LP64D) \
+                  || defined(BUILD_TARGET_RISCV64_LP64) */
  
 +
 +#if defined(BUILD_TARGET_E2K_64)
@@ -502,19 +502,19 @@ index f18cd784..0fccca99 100644
 +#endif
 +
 +
- #if defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_ARM)    \
-     || defined(BUILD_TARGET_THUMB) || defined(BUILD_TARGET_MIPS) \
-     || defined(BUILD_TARGET_XTENSA)
+ bool
+ wasm_runtime_call_indirect(WASMExecEnv *exec_env, uint32 element_index,
+                            uint32 argc, uint32 argv[])
 diff --git a/core/iwasm/interpreter/wasm_loader.c b/core/iwasm/interpreter/wasm_loader.c
-index bf117dd8..0e3e7d95 100644
+index 0891598d..e24c9ed2 100644
 --- a/core/iwasm/interpreter/wasm_loader.c
 +++ b/core/iwasm/interpreter/wasm_loader.c
-@@ -1728,7 +1728,7 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
+@@ -1631,7 +1631,7 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
          type->fields[i].field_size =
              (uint8)wasm_reftype_size(ref_type.ref_type);
  #if !(defined(BUILD_TARGET_X86_64) || defined(BUILD_TARGET_AMD_64) \
 -      || defined(BUILD_TARGET_X86_32))
-+      || defined(BUILD_TARGET_X86_32)) || defined(BUILD_TARGET_E2K_64))
++      || defined(BUILD_TARGET_X86_32) || defined(BUILD_TARGET_E2K_64))
          if (type->fields[i].field_size == 2)
              offset = align_uint(offset, 2);
          else if (type->fields[i].field_size >= 4) /* field size is 4 or 8 */
@@ -541,5 +541,5 @@ index aeddc4cc..81f7ab5d 100644
  
  #define os_getpagesize getpagesize
 -- 
-2.34.1
+2.43.0
 

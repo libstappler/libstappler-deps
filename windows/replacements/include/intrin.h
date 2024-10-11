@@ -9,7 +9,6 @@
 
 /* Only include this if we're compiling for the windows platform. */
 #ifndef _MSC_VER
-#warning Test __INTRIN_H
 #include_next <intrin.h>
 #else
 
@@ -573,6 +572,22 @@ unsigned char __readx18byte(unsigned long offset);
 unsigned short __readx18word(unsigned long offset);
 unsigned long __readx18dword(unsigned long offset);
 unsigned __int64 __readx18qword(unsigned long offset);
+
+double _CopyDoubleFromInt64(__int64);
+float _CopyFloatFromInt32(__int32);
+__int32 _CopyInt32FromFloat(float);
+__int64 _CopyInt64FromDouble(double);
+
+unsigned int _CountLeadingOnes(unsigned long);
+unsigned int _CountLeadingOnes64(unsigned __int64);
+unsigned int _CountLeadingSigns(long);
+unsigned int _CountLeadingSigns64(__int64);
+unsigned int _CountLeadingZeros(unsigned long);
+unsigned int _CountLeadingZeros64(unsigned _int64);
+unsigned int _CountOneBits(unsigned long);
+unsigned int _CountOneBits64(unsigned __int64);
+
+void __cdecl __prefetch(void *);
 #endif
 
 /*----------------------------------------------------------------------------*\

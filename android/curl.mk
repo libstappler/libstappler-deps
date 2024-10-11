@@ -63,10 +63,10 @@ CONFIGURE := \
 	--disable-versioned-symbols \
 	--disable-verbose  \
 	--disable-sspi \
-	--disable-ntlm-wb  \
 	--with-zlib \
 	--with-brotli \
 	--with-libidn2 \
+	--without-zstd \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
