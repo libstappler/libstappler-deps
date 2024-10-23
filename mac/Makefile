@@ -37,7 +37,6 @@ LIBS := \
 	libfreetype.a \
 	libbacktrace.a \
 	libsqlite3.a \
-	libidn2.a \
 	libmbedtls.a \
 	libnghttp3.a \
 	libssl.a \
@@ -95,10 +94,10 @@ $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libbacktrace.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
-$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libbacktrace.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
