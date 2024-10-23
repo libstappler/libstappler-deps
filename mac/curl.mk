@@ -64,7 +64,7 @@ CONFIGURE := \
 	--disable-sspi \
 	--with-zlib \
 	--with-brotli \
-	--with-libidn2 \
+	--with-apple-idn \
 	--without-zstd \
 	--without-libpsl \
 	--without-ca-path \
