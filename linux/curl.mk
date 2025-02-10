@@ -40,7 +40,6 @@ CONFIGURE := \
 	--enable-cookies \
 	--enable-shared=no \
 	--enable-static=yes \
-	--enable-pthreads \
 	--enable-websockets \
 	--disable-warnings \
 	--disable-curldebug \
@@ -70,6 +69,7 @@ CONFIGURE := \
 	--without-ca-path \
 	--without-libssh2 \
 	--without-librtmp \
+	--without-nghttp2 \
 	--without-nghttp3 \
 	--without-ngtcp2 \
 	--with-ca-bundle=$(realpath ../replacements/curl/cacert.pem)
