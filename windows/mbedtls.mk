@@ -34,7 +34,6 @@ CONFIGURE := \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
 	-DCMAKE_C_COMPILER=clang-cl \
 	-DCMAKE_RC_COMPILER=llvm-rc \
-	-DCMAKE_C_FLAGS_INIT="$(CPPFLAGS)" \
 	-DCMAKE_MT=llvm-mt \
 	-DCMAKE_EXE_LINKER_FLAGS_INIT="$(addprefix /libpath:,$(CRT_LIB))" \
 	-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(addprefix /libpath:,$(CRT_LIB))" \

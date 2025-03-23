@@ -97,9 +97,9 @@ endif
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) $(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) XWIN_DIR=$(XWIN_DIR) make -j8; \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) make install
+		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
+		make -j8; \
+		make install
 	mv -f $(PREFIX)/lib/libcurl.a $(PREFIX)/lib/curl-$(VARIANT).lib
 	rm -f $(PREFIX)/lib/libcurl.la
 	rm -rf $(LIBNAME)

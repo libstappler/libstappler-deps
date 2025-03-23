@@ -28,6 +28,7 @@ CONFIGURE := mingw-xwin-clang-x64 \
 	--prefix=$(PREFIX) \
 	CC=$(CC) \
 	CXX=$(CXX) \
+	AR=$(AR) \
 	RC=x86_64-windows-windres \
 	no-tests \
 	no-shared \

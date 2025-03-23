@@ -42,7 +42,8 @@ all:
 	cp -f $(PREFIX)/include/libpng16/* $(PREFIX)/include
 	rm -rf $(PREFIX)/include/libpng16
 	rm -rf $(PREFIX)/bin/png*
-	mv -f $(PREFIX)/lib/libpng16.a $(PREFIX)/lib/png16.lib
+	if [ -e $(PREFIX)/lib/libpng16.a ]; then mv -f $(PREFIX)/lib/libpng16.a $(PREFIX)/lib/png16.lib; fi
 	rm -f $(PREFIX)/lib/libpng16.la
+	cp $(PREFIX)/lib/pkgconfig/libpng16.pc $(PREFIX)/lib/pkgconfig/libpng.pc
 
 .PHONY: all

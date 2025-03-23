@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2023-2025 Stappler LLC <admin@stappler.dev>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ LIBS_MAKE_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
 LIBS_MAKE_ROOT := $(dir $(LIBS_MAKE_FILE))
 
 SRC_ROOT := $(LIBS_MAKE_ROOT)src
+TMP_DIR := $(LIBS_MAKE_ROOT)tmp
 XWIN_ROOT := $(LIBS_MAKE_ROOT)xwin
 
 WGET = wget
@@ -50,137 +51,113 @@ LIBS = \
 	openssl-gost-engine \
 	wasm-micro-runtime
 
+UNAME := $(shell uname -a)
+
+# DO NOT use MSYS cmake - it's buggy for compiling with clang on windows
+MSYS_PREPARE := pacman --noconfirm --needed -S curl wget tar sed unzip git binutils gcc
+
+PREPARE := $(if $(filter MSYS_NT%,$(UNAME)),$(MSYS_PREPARE))
+
+get_tar_top_dir = `tar -tf $(1)  | head -1 | cut -f1 -d"/"`
+
+unpack_tar = $(MKDIR) $(SRC_ROOT) $(TMP_DIR); \
+	cd $(TMP_DIR); \
+	$(WGET) $(1); \
+	$(TAR_XF) $(notdir $(1)); \
+	mv -f $(call get_tar_top_dir,$(notdir $(1))) $(SRC_ROOT)/$(firstword $(2)); \
+	rm $(notdir $(1))
+
+prepare:
+	$(PREPARE)
+
 all: $(addprefix $(SRC_ROOT)/,$(LIBS)) replacements/curl/cacert.pem
+
+all:
+	rm -rf $(TMP_DIR)
 
 clean:
 	rm -rf $(SRC_ROOT) $(XWIN_ROOT) replacements/curl/cacert.pem
 
 # http://www.ijg.org/
-$(SRC_ROOT)/jpeg:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) http://ijg.org/files/jpegsrc.v9f.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) jpegsrc.v9f.tar.gz
-	rm $(SRC_ROOT)/jpegsrc.v9f.tar.gz
-	mv $(SRC_ROOT)/jpeg-9f $(SRC_ROOT)/jpeg
+$(SRC_ROOT)/jpeg: prepare
+	$(call unpack_tar, http://ijg.org/files/jpegsrc.v9f.tar.gz, jpeg) # revised: 10 feb 2025
 
 # http://www.libpng.org/pub/png/libpng.html
-$(SRC_ROOT)/libpng:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) http://prdownloads.sourceforge.net/libpng/libpng-1.6.45.tar.xz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) libpng-1.6.45.tar.xz
-	rm $(SRC_ROOT)/libpng-1.6.45.tar.xz
-	mv $(SRC_ROOT)/libpng-1.6.45 $(SRC_ROOT)/libpng
+$(SRC_ROOT)/libpng: prepare
+	$(call unpack_tar, http://prdownloads.sourceforge.net/libpng/libpng-1.6.45.tar.xz, libpng) # revised: 10 feb 2025
 
 # https://sourceforge.net/projects/giflib/files/latest/download
-$(SRC_ROOT)/giflib:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://altushost-swe.dl.sourceforge.net/project/giflib/giflib-5.2.2.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) giflib-5.2.2.tar.gz
-	rm $(SRC_ROOT)/giflib-5.2.2.tar.gz
-	mv $(SRC_ROOT)/giflib-5.2.2 $(SRC_ROOT)/giflib
+$(SRC_ROOT)/giflib: prepare
+	$(call unpack_tar, https://altushost-swe.dl.sourceforge.net/project/giflib/giflib-5.2.2.tar.gz, giflib) # revised: 10 feb 2025
 
 # https://storage.googleapis.com/downloads.webmproject.org/releases/webp/index.html
-$(SRC_ROOT)/libwebp:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.5.0.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) libwebp-1.5.0.tar.gz
-	rm $(SRC_ROOT)/libwebp-1.5.0.tar.gz
-	mv $(SRC_ROOT)/libwebp-1.5.0 $(SRC_ROOT)/libwebp
+$(SRC_ROOT)/libwebp: prepare
+	$(call unpack_tar, https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.5.0.tar.gz, libwebp) # revised: 10 feb 2025
 
 # https://github.com/google/brotli/releases
-$(SRC_ROOT)/brotli:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) v1.1.0.tar.gz
-	rm $(SRC_ROOT)/v1.1.0.tar.gz
-	mv $(SRC_ROOT)/brotli-1.1.0 $(SRC_ROOT)/brotli
+$(SRC_ROOT)/brotli: prepare
+	$(call unpack_tar, https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz, brotli) # revised: 10 feb 2025
 
 # https://github.com/Mbed-TLS/mbedtls/releases
-$(SRC_ROOT)/mbedtls:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.1/mbedtls-3.6.1.tar.bz2 # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) mbedtls-3.6.1.tar.bz2
-	rm $(SRC_ROOT)/mbedtls-3.6.1.tar.bz2
-	mv $(SRC_ROOT)/mbedtls-3.6.1 $(SRC_ROOT)/mbedtls
+$(SRC_ROOT)/mbedtls: prepare
+	$(call unpack_tar, https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.1/mbedtls-3.6.1.tar.bz2, mbedtls) # revised: 10 feb 2025
 
 # https://github.com/ngtcp2/nghttp3/releases
-$(SRC_ROOT)/nghttp3:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://github.com/ngtcp2/nghttp3/releases/download/v1.7.0/nghttp3-1.7.0.tar.bz2 # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) nghttp3-1.7.0.tar.bz2
-	rm $(SRC_ROOT)/nghttp3-1.7.0.tar.bz2
-	mv $(SRC_ROOT)/nghttp3-1.7.0 $(SRC_ROOT)/nghttp3
+$(SRC_ROOT)/nghttp3: prepare
+	$(call unpack_tar, https://github.com/ngtcp2/nghttp3/releases/download/v1.7.0/nghttp3-1.7.0.tar.bz2, nghttp3) # revised: 10 feb 2025
 
 # https://curl.se/download.html
-$(SRC_ROOT)/curl:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://curl.se/download/curl-8.12.0.tar.xz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) curl-8.12.0.tar.xz
-	rm $(SRC_ROOT)/curl-8.12.0.tar.xz
-	mv $(SRC_ROOT)/curl-8.12.0 $(SRC_ROOT)/curl
-
-#	cd $(SRC_ROOT)/curl; patch lib/curl_trc.h < ../../replacements/curl/0001-WS-fix.patch
+$(SRC_ROOT)/curl: prepare
+	$(call unpack_tar, https://curl.se/download/curl-8.12.0.tar.xz, curl) # revised: 10 feb 2025
 
 # https://download.savannah.gnu.org/releases/freetype/?C=M&O=D
-$(SRC_ROOT)/freetype:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) freetype-2.13.3.tar.xz
-	rm $(SRC_ROOT)/freetype-2.13.3.tar.xz
-	mv $(SRC_ROOT)/freetype-2.13.3 $(SRC_ROOT)/freetype
+$(SRC_ROOT)/freetype: prepare
+	$(call unpack_tar, https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz, freetype) # revised: 10 feb 2025
 
 # https://www.sqlite.org/download.html
-$(SRC_ROOT)/sqlite:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://www.sqlite.org/2025/sqlite-amalgamation-3490000.zip # revised: 10 feb 2025
-	cd $(SRC_ROOT); unzip sqlite-amalgamation-3490000.zip -d .
-	rm $(SRC_ROOT)/sqlite-amalgamation-3490000.zip
-	mv $(SRC_ROOT)/sqlite-amalgamation-3490000 $(SRC_ROOT)/sqlite
+$(SRC_ROOT)/sqlite: prepare
+	@$(MKDIR) $(SRC_ROOT) $(TMP_DIR)
+	cd $(TMP_DIR); $(WGET) https://www.sqlite.org/2025/sqlite-amalgamation-3490000.zip # revised: 10 feb 2025
+	cd $(TMP_DIR); unzip sqlite-amalgamation-3490000.zip -d .
+	rm $(TMP_DIR)/sqlite-amalgamation-3490000.zip
+	mv -f $(TMP_DIR)/sqlite-amalgamation-3490000 $(SRC_ROOT)/sqlite
 
 # https://github.com/SBKarr/libuidna
-$(SRC_ROOT)/libuidna:
+$(SRC_ROOT)/libuidna: prepare
 	@$(MKDIR) $(SRC_ROOT)
+	rm -rf $(SRC_ROOT)/libuidna
 	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 10 feb 2025
 
 # https://github.com/ianlancetaylor/libbacktrace
-$(SRC_ROOT)/libbacktrace:
+$(SRC_ROOT)/libbacktrace: prepare
 	@$(MKDIR) $(SRC_ROOT)
+	rm -rf $(SRC_ROOT)/libbacktrace
 	cd $(SRC_ROOT); git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 10 feb 2025
 
 # https://libzip.org/download/
-$(SRC_ROOT)/libzip:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); $(WGET) https://libzip.org/download/libzip-1.11.3.tar.xz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) libzip-1.11.3.tar.xz
-	rm $(SRC_ROOT)/libzip-1.11.3.tar.xz
-	mv $(SRC_ROOT)/libzip-1.11.3 $(SRC_ROOT)/libzip
+$(SRC_ROOT)/libzip: prepare
+	$(call unpack_tar, https://libzip.org/download/libzip-1.11.3.tar.xz, libzip) # revised: 10 feb 2025
 
 # https://www.zlib.net/
-$(SRC_ROOT)/zlib:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://www.zlib.net/zlib-1.3.1.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) zlib-1.3.1.tar.gz
-	rm $(SRC_ROOT)/zlib-1.3.1.tar.gz
-	mv $(SRC_ROOT)/zlib-1.3.1 $(SRC_ROOT)/zlib
+$(SRC_ROOT)/zlib: prepare
+	$(call unpack_tar, https://www.zlib.net/zlib-1.3.1.tar.gz, zlib) # revised: 10 feb 2025
 
 # https://openssl-library.org/source/index.html
-$(SRC_ROOT)/openssl:
-	@$(MKDIR) $(SRC_ROOT)
-	cd $(SRC_ROOT); wget https://github.com/openssl/openssl/releases/download/openssl-3.3.2/openssl-3.3.2.tar.gz # revised: 10 feb 2025
-	cd $(SRC_ROOT); $(TAR_XF) openssl-3.3.2.tar.gz
-	rm $(SRC_ROOT)/openssl-3.3.2.tar.gz
-	mv $(SRC_ROOT)/openssl-3.3.2 $(SRC_ROOT)/openssl
+$(SRC_ROOT)/openssl: prepare
+	$(call unpack_tar, https://github.com/openssl/openssl/releases/download/openssl-3.3.2/openssl-3.3.2.tar.gz, openssl) # revised: 10 feb 2025
 	cp -f replacements/openssl/async_posix.c $(SRC_ROOT)/openssl/crypto/async/arch/async_posix.c
 
 # https://github.com/gost-engine/engine
-$(SRC_ROOT)/openssl-gost-engine:
+$(SRC_ROOT)/openssl-gost-engine: prepare
 	@$(MKDIR) $(SRC_ROOT)
+	rm -rf $(SRC_ROOT)/openssl-gost-engine
 	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.3 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 feb 2025
 	cp -f replacements/openssl-gost-engine/CMakeLists.txt $(SRC_ROOT)/openssl-gost-engine
 
 # https://github.com/bytecodealliance/wasm-micro-runtime
-$(SRC_ROOT)/wasm-micro-runtime:
+$(SRC_ROOT)/wasm-micro-runtime: prepare
 	@$(MKDIR) $(SRC_ROOT)
+	rm -rf $(SRC_ROOT)/wasm-micro-runtime
 	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch WAMR-2.1.2 https://github.com/bytecodealliance/wasm-micro-runtime.git --depth 1 wasm-micro-runtime # revised: 10 feb 2025
 	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0001-Initial-e2k-support.patch
 	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0002-Windows-clang-fixes.patch
@@ -188,28 +165,28 @@ $(SRC_ROOT)/wasm-micro-runtime:
 # Inject Russia Ministry of Digital Development certificates
 # https://curl.se/ca
 # https://www.gosuslugi.ru/crt
-replacements/curl/cacert.pem: $(LIBS_MAKE_FILE)
+replacements/curl/cacert.pem: prepare $(LIBS_MAKE_FILE)
 	@$(MKDIR) replacements/curl
-	cd replacements/curl; wget https://curl.se/ca/cacert-2024-12-31.pem # revised: 10 feb 2025
-	cd replacements/curl; wget https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt
-	sed -i '1s;^;\nhttps://www.gosuslugi.ru/crt - Root\n====================\n;' replacements/curl/russian_trusted_root_ca_pem.crt
-	cd replacements/curl; wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt
-	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub\n====================\n;' replacements/curl/russian_trusted_sub_ca_pem.crt
-	cd replacements/curl; wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_2024_pem.crt
-	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub 2024\n====================\n;' replacements/curl/russian_trusted_sub_ca_2024_pem.crt
+	cd $(TMP_DIR); wget https://curl.se/ca/cacert-2024-12-31.pem # revised: 10 feb 2025
+	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt
+	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt
+	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_2024_pem.crt
+	sed -i '1s;^;\nhttps://www.gosuslugi.ru/crt - Root\n====================\n;' $(TMP_DIR)/russian_trusted_root_ca_pem.crt
+	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub\n====================\n;' $(TMP_DIR)/russian_trusted_sub_ca_pem.crt
+	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub 2024\n====================\n;' $(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt
 	cd replacements/curl; cat \
-		cacert-2024-12-31.pem \
-		russian_trusted_root_ca_pem.crt \
-		russian_trusted_sub_ca_pem.crt \
-		russian_trusted_sub_ca_2024_pem.crt > cacert.pem
-	cd replacements/curl; rm \
-		cacert-2024-12-31.pem \
-		russian_trusted_root_ca_pem.crt \
-		russian_trusted_sub_ca_pem.crt \
-		russian_trusted_sub_ca_2024_pem.crt
+		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt > cacert.pem
+	@rm \
+		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt
 
 # https://github.com/Jake-Shadle/xwin/releases
-xwin:
+xwin: prepare
 	@$(MKDIR) $(SRC_ROOT)
 	$(WGET) https://github.com/Jake-Shadle/xwin/releases/download/0.6.5/xwin-0.6.5-x86_64-unknown-linux-musl.tar.gz # revised: 10 feb 2025
 	$(TAR_XF) xwin-0.6.5-x86_64-unknown-linux-musl.tar.gz
@@ -218,4 +195,4 @@ xwin:
 	cd xwin; ./xwin --accept-license unpack; ./xwin --accept-license splat
 	mv xwin/.xwin-cache/splat xwin/splat
 
-.PHONY: all clean
+.PHONY: all clean prepare

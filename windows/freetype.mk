@@ -38,9 +38,9 @@ CONFIGURE := \
 all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) $(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) make -j8; \
-		PATH=$(REPLACEMENTS_BIN):$(PATH) make install
+		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
+		make -j8; \
+		make install
 	rm -rf $(LIBNAME)
 	cp -rf $(PREFIX)/include/freetype2/* $(PREFIX)/include
 	rm -rf $(PREFIX)/include/freetype2

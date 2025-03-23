@@ -31,17 +31,18 @@ ifdef ARCH
 CRT_INCLUDE :=
 CRT_LIB :=
 
+REPLACEMENTS_INCLUDE := $(realpath $(MAKE_ROOT)/../windows/replacements/include)
+
 ifdef XWIN
 
 XWIN_DIR := $(realpath $(MAKE_ROOT)/../xwin)
-REPLACEMENTS_INCLUDE := $(realpath $(MAKE_ROOT)/../windows/replacements/include)
 REPLACEMENTS_BIN := $(realpath $(MAKE_ROOT)/../windows/replacements/bin)
 
 CRT_INCLUDE += \
-	-I$(XWIN_DIR)/splat/crt/include \
-	-I$(XWIN_DIR)/splat/sdk/include/ucrt \
-	-I$(XWIN_DIR)/splat/sdk/include/um \
-	-I$(XWIN_DIR)/splat/sdk/include/shared
+	$(XWIN_DIR)/splat/crt/include \
+	$(XWIN_DIR)/splat/sdk/include/ucrt \
+	$(XWIN_DIR)/splat/sdk/include/um \
+	$(XWIN_DIR)/splat/sdk/include/shared
 
 CRT_LIB += \
 	$(XWIN_DIR)/splat/crt/lib/$(ARCH) \
@@ -62,6 +63,7 @@ endif
 CC := clang
 CXX := clang++
 LD := lld-link
+AR := llvm-ar
 OPT := -O3
 
 LIBS := \
@@ -95,8 +97,8 @@ endif
 
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
 
-FORWARD_VARS := ARCH=$(ARCH) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) LD=$(LD) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT) \
-	REPLACEMENTS_INCLUDE="-I$(REPLACEMENTS_INCLUDE)" CRT_INCLUDE="$(CRT_INCLUDE)" CRT_LIB="$(CRT_LIB)" TARGET=$(TARGET) \
+FORWARD_VARS := ARCH=$(ARCH) PREFIX=$(PREFIX) CC=$(CC) CXX=$(CXX) LD=$(LD) AR=$(AR) OPT=$(OPT) LIB_SRC_DIR=$(LIB_SRC_DIR) MAKE_ROOT=$(MAKE_ROOT) \
+	REPLACEMENTS_INCLUDE="$(addprefix -I,$(REPLACEMENTS_INCLUDE))" CRT_INCLUDE="$(addprefix -I,$(CRT_INCLUDE))" CRT_LIB="$(CRT_LIB)" TARGET=$(TARGET) \
 	REPLACEMENTS_BIN=$(REPLACEMENTS_BIN) XWIN_DIR=$(XWIN_DIR)
 
 ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
@@ -158,6 +160,8 @@ $(PREFIX)/lib/vmlib-release.lib $(PREFIX)/lib/vmlib-debug.lib: $(MAKE_ROOT)wamr.
 
 else
 
+UNAME := $(shell uname -a)
+
 ARCHS := x86_64/release x86_64/debug
 
 all: $(ARCHS)
@@ -167,11 +171,11 @@ clean:
 
 x86_64/debug:
 	$(MKDIR) x86_64/debug
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 XWIN=1 TARGET=x86_64-windows-msvc ARCH_LOCAL=x64
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter MSYS_NT%,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64
 
 x86_64/release:
 	$(MKDIR) x86_64/release
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 XWIN=1 TARGET=x86_64-windows-msvc ARCH_LOCAL=x64 RELEASE=1
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter MSYS_NT%,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64 RELEASE=1
 
 .PHONY: all x86_64/debug x86_64/release
 

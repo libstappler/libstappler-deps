@@ -29,7 +29,7 @@ all:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); \
 		$(CC) $(CPPFLAGS) $(CFLAGS) -c -o sqlite3.o $(LIB_SRC_DIR)/$(LIBNAME)/sqlite3.c; \
-		ar rcs sqlite3.lib sqlite3.o
+		llvm-ar rcs sqlite3.lib sqlite3.o
 	mv -f $(LIBNAME)/sqlite3.lib $(PREFIX)/lib/
 	rm -rf $(LIBNAME)
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/*.h $(PREFIX)/include/
