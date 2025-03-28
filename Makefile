@@ -62,7 +62,7 @@ get_tar_top_dir = `tar -tf $(1)  | head -1 | cut -f1 -d"/"`
 
 unpack_tar = $(MKDIR) $(SRC_ROOT) $(TMP_DIR); \
 	cd $(TMP_DIR); \
-	$(WGET) $(1); \
+	$(WGET)  -O $(notdir $(1)) $(1); \
 	$(TAR_XF) $(notdir $(1)); \
 	mv -f $(call get_tar_top_dir,$(notdir $(1))) $(SRC_ROOT)/$(firstword $(2)); \
 	rm $(notdir $(1))
