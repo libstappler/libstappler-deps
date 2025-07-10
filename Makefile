@@ -42,7 +42,6 @@ LIBS = \
 	freetype \
 	sqlite \
 	libuidna \
-	libbacktrace \
 	mbedtls \
 	nghttp3 \
 	libzip \
@@ -127,12 +126,6 @@ $(SRC_ROOT)/libuidna: prepare
 	@$(MKDIR) $(SRC_ROOT)
 	rm -rf $(SRC_ROOT)/libuidna
 	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 10 feb 2025
-
-# https://github.com/ianlancetaylor/libbacktrace
-$(SRC_ROOT)/libbacktrace: prepare
-	@$(MKDIR) $(SRC_ROOT)
-	rm -rf $(SRC_ROOT)/libbacktrace
-	cd $(SRC_ROOT); git clone https://github.com/ianlancetaylor/libbacktrace.git --depth 1 $(SRC_ROOT)/libbacktrace # use upstream: 10 feb 2025
 
 # https://libzip.org/download/
 $(SRC_ROOT)/libzip: prepare

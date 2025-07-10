@@ -33,6 +33,6 @@ all:
 		$(LIB_SRC_DIR)/$(LIBNAME)/configure $(CONFIGURE); \
 		make -j8; \
 		make install
-	rm -rf $(LIBNAME)
+#	rm -rf $(LIBNAME)
 
 .PHONY: all

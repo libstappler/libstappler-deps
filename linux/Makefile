@@ -38,7 +38,6 @@ LIBS := \
 	libwebp.a \
 	libbrotlienc.a \
 	libfreetype.a \
-	libbacktrace.a \
 	libsqlite3.a \
 	libidn2.a \
 	libmbedtls.a \
@@ -116,9 +115,6 @@ $(PREFIX)/lib/libwebp.a: $(MAKE_ROOT)libwebp.mk $(PREFIX)/lib/libpng16.a $(PREFI
 
 $(PREFIX)/lib/libfreetype.a: $(MAKE_ROOT)freetype.mk $(PREFIX)/lib/libbrotlienc.a $(PREFIX)/lib/libpng16.a
 	$(MAKE) -f $(MAKE_ROOT)freetype.mk $(FORWARD_VARS)
-
-$(PREFIX)/lib/libbacktrace.a: $(MAKE_ROOT)libbacktrace.mk
-	$(MAKE) -f $(MAKE_ROOT)libbacktrace.mk $(FORWARD_VARS)
 
 $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 	$(MAKE) -f $(MAKE_ROOT)sqlite.mk $(FORWARD_VARS)
