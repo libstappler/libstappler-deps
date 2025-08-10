@@ -23,6 +23,8 @@
 #else
 #define WASM_RUNTIME_API_EXTERN __declspec(dllimport)
 #endif
+#elif defined(__GNUC__) || defined(__clang__)
+#define WASM_RUNTIME_API_EXTERN __attribute__((visibility("default")))
 #else
 #define WASM_RUNTIME_API_EXTERN
 #endif
@@ -120,6 +122,23 @@ typedef struct WASMModuleInstanceCommon *wasm_module_inst_t;
 typedef void WASMFunctionInstanceCommon;
 typedef WASMFunctionInstanceCommon *wasm_function_inst_t;
 
+/* Memory instance */
+struct WASMMemoryInstance;
+typedef struct WASMMemoryInstance *wasm_memory_inst_t;
+
+typedef struct wasm_frame_t {
+    /*  wasm_instance_t */
+    void *instance;
+    uint32_t module_offset;
+    uint32_t func_index;
+    uint32_t func_offset;
+    const char *func_name_wp;
+
+    uint32_t *sp;
+    uint8_t *frame_ref;
+    uint32_t *lp;
+} WASMCApiFrame;
+
 /* WASM section */
 typedef struct wasm_section_t {
     struct wasm_section_t *next;
@@ -134,6 +153,9 @@ typedef struct wasm_section_t {
 /* Execution environment, e.g. stack info */
 struct WASMExecEnv;
 typedef struct WASMExecEnv *wasm_exec_env_t;
+
+struct WASMSharedHeap;
+typedef struct WASMSharedHeap *wasm_shared_heap_t;
 
 /* Package Type */
 typedef enum {
@@ -248,6 +270,11 @@ typedef struct LoadArgs {
     const strings), making it possible to free the wasm binary buffer after
     loading. */
     bool wasm_binary_freeable;
+
+    /* false by default, if true, don't resolve the symbols yet. The
+       wasm_runtime_load_ex has to be followed by a wasm_runtime_resolve_symbols
+       call */
+    bool no_resolve;
     /* TODO: more fields? */
 } LoadArgs;
 #endif /* LOAD_ARGS_OPTION_DEFINED */
@@ -261,6 +288,8 @@ typedef struct InstantiationArgs {
     uint32_t max_memory_pages;
 } InstantiationArgs;
 #endif /* INSTANTIATION_ARGS_OPTION_DEFINED */
+
+struct InstantiationArgs2;
 
 #ifndef WASM_VALKIND_T_DEFINED
 #define WASM_VALKIND_T_DEFINED
@@ -319,6 +348,11 @@ typedef enum {
     WASM_LOG_LEVEL_DEBUG = 3,
     WASM_LOG_LEVEL_VERBOSE = 4
 } log_level_t;
+
+typedef struct SharedHeapInitArgs {
+    uint32_t size;
+    void *pre_allocated_addr;
+} SharedHeapInitArgs;
 
 /**
  * Initialize the WASM runtime environment, and also initialize
@@ -566,6 +600,12 @@ wasm_runtime_load_ex(uint8_t *buf, uint32_t size, const LoadArgs *args,
                      char *error_buf, uint32_t error_buf_size);
 
 /**
+ * Resolve symbols for a previously loaded WASM module. Only useful when the
+ * module was loaded with LoadArgs::no_resolve set to true
+ */
+WASM_RUNTIME_API_EXTERN bool
+wasm_runtime_resolve_symbols(wasm_module_t module);
+/**
  * Load a WASM module from a specified WASM or AOT section list.
  *
  * @param section_list the section list which contains each section data
@@ -694,6 +734,46 @@ WASM_RUNTIME_API_EXTERN wasm_module_inst_t
 wasm_runtime_instantiate_ex(const wasm_module_t module,
                             const InstantiationArgs *args, char *error_buf,
                             uint32_t error_buf_size);
+
+/**
+ * Create an InstantiationArgs2 object with default parameters.
+ *
+ * @return true if success, false otherwise
+ */
+WASM_RUNTIME_API_EXTERN bool
+wasm_runtime_instantiation_args_create(struct InstantiationArgs2 **p);
+
+/**
+ * Dispose an InstantiationArgs2 object.
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_instantiation_args_destroy(struct InstantiationArgs2 *p);
+
+/**
+ * Setter functions for the InstantiationArgs2 object.
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_instantiation_args_set_default_stack_size(
+    struct InstantiationArgs2 *p, uint32_t v);
+
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_instantiation_args_set_host_managed_heap_size(
+    struct InstantiationArgs2 *p, uint32_t v);
+
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_instantiation_args_set_max_memory_pages(
+    struct InstantiationArgs2 *p, uint32_t v);
+
+/**
+ * Instantiate a WASM module, with specified instantiation arguments
+ *
+ * Same as wasm_runtime_instantiate_ex, but this version takes
+ * InstantiationArgs2, which can be extended without breaking the ABI.
+ */
+WASM_RUNTIME_API_EXTERN wasm_module_inst_t
+wasm_runtime_instantiate_ex2(const wasm_module_t module,
+                             const struct InstantiationArgs2 *args,
+                             char *error_buf, uint32_t error_buf_size);
 
 /**
  * Set the running mode of a WASM module instance, override the
@@ -841,6 +921,35 @@ WASM_RUNTIME_API_EXTERN void
 wasm_runtime_destroy_exec_env(wasm_exec_env_t exec_env);
 
 /**
+ * @brief Copy callstack frames.
+ *
+ * Caution: This is not a thread-safe function. Ensure the exec_env
+ * is suspended before calling it from another thread.
+ *
+ * Usage: In the callback to read frames fields use APIs
+ * for wasm_frame_t from wasm_c_api.h
+ *
+ * Note: The function is async-signal-safe if called with verified arguments.
+ * Meaning it's safe to call it from a signal handler even on a signal
+ * interruption from another thread if next variables hold valid pointers
+ * - exec_env
+ * - exec_env->module_inst
+ * - exec_env->module_inst->module
+ *
+ * @param exec_env the execution environment that containes frames
+ * @param buffer the buffer of size equal length * sizeof(wasm_frame_t) to copy
+ * frames to
+ * @param length the number of frames to copy
+ * @param skip_n the number of frames to skip from the top of the stack
+ *
+ * @return number of copied frames
+ */
+WASM_RUNTIME_API_EXTERN uint32_t
+wasm_copy_callstack(const wasm_exec_env_t exec_env, WASMCApiFrame *buffer,
+                    const uint32_t length, const uint32_t skip_n,
+                    char *error_buf, uint32_t error_buf_size);
+
+/**
  * Get the singleton execution environment for the instance.
  *
  * Note: The singleton execution environment is the execution
@@ -938,6 +1047,100 @@ wasm_runtime_get_module_inst(wasm_exec_env_t exec_env);
 WASM_RUNTIME_API_EXTERN void
 wasm_runtime_set_module_inst(wasm_exec_env_t exec_env,
                              const wasm_module_inst_t module_inst);
+
+/**
+ * @brief Lookup a memory instance by name
+ *
+ * @param module_inst The module instance
+ * @param name The name of the memory instance
+ *
+ * @return The memory instance if found, NULL otherwise
+ */
+WASM_RUNTIME_API_EXTERN wasm_memory_inst_t
+wasm_runtime_lookup_memory(const wasm_module_inst_t module_inst,
+                           const char *name);
+
+/**
+ * @brief Get the default memory instance
+ *
+ * @param module_inst The module instance
+ *
+ * @return The memory instance if found, NULL otherwise
+ */
+WASM_RUNTIME_API_EXTERN wasm_memory_inst_t
+wasm_runtime_get_default_memory(const wasm_module_inst_t module_inst);
+
+/**
+ * @brief Get a memory instance by index
+ *
+ * @param module_inst The module instance
+ * @param index The index of the memory instance
+ *
+ * @return The memory instance if found, NULL otherwise
+ */
+WASM_RUNTIME_API_EXTERN wasm_memory_inst_t
+wasm_runtime_get_memory(const wasm_module_inst_t module_inst, uint32_t index);
+
+/**
+ * @brief Get the current number of pages for a memory instance
+ *
+ * @param memory_inst The memory instance
+ *
+ * @return The current number of pages
+ */
+WASM_RUNTIME_API_EXTERN uint64_t
+wasm_memory_get_cur_page_count(const wasm_memory_inst_t memory_inst);
+
+/**
+ * @brief Get the maximum number of pages for a memory instance
+ *
+ * @param memory_inst The memory instance
+ *
+ * @return The maximum number of pages
+ */
+WASM_RUNTIME_API_EXTERN uint64_t
+wasm_memory_get_max_page_count(const wasm_memory_inst_t memory_inst);
+
+/**
+ * @brief Get the number of bytes per page for a memory instance
+ *
+ * @param memory_inst The memory instance
+ *
+ * @return The number of bytes per page
+ */
+WASM_RUNTIME_API_EXTERN uint64_t
+wasm_memory_get_bytes_per_page(const wasm_memory_inst_t memory_inst);
+
+/**
+ * @brief Get the shared status for a memory instance
+ *
+ * @param memory_inst The memory instance
+ *
+ * @return True if shared, false otherwise
+ */
+WASM_RUNTIME_API_EXTERN bool
+wasm_memory_get_shared(const wasm_memory_inst_t memory_inst);
+
+/**
+ * @brief Get the base address for a memory instance
+ *
+ * @param memory_inst The memory instance
+ *
+ * @return The base address on success, false otherwise
+ */
+WASM_RUNTIME_API_EXTERN void *
+wasm_memory_get_base_address(const wasm_memory_inst_t memory_inst);
+
+/**
+ * @brief Enlarge a memory instance by a number of pages
+ *
+ * @param memory_inst The memory instance
+ * @param inc_page_count The number of pages to add
+ *
+ * @return True if successful, false otherwise
+ */
+WASM_RUNTIME_API_EXTERN bool
+wasm_memory_enlarge(wasm_memory_inst_t memory_inst, uint64_t inc_page_count);
 
 /**
  * Call the given WASM function of a WASM module instance with
@@ -1050,8 +1253,8 @@ wasm_application_execute_main(wasm_module_inst_t module_inst, int32_t argc,
                               char *argv[]);
 
 /**
- * Find the specified function in argv[0] from a WASM module instance
- * and execute that function.
+ * Find the specified function from a WASM module instance and execute
+ * that function.
  *
  * @param module_inst the WASM module instance
  * @param name the name of the function to execute.
@@ -1640,6 +1843,40 @@ WASM_RUNTIME_API_EXTERN void *
 wasm_runtime_get_user_data(wasm_exec_env_t exec_env);
 
 /**
+ * Set native stack boundary to execution environment, if it is set,
+ * it will be used instead of getting the boundary with the platform
+ * layer API when calling wasm functions. This is useful for some
+ * fiber cases.
+ *
+ * Note: unlike setting the boundary by runtime, this API doesn't add
+ * the WASM_STACK_GUARD_SIZE(see comments in core/config.h) to the
+ * exec_env's native_stack_boundary to reserve bytes to the native
+ * thread stack boundary, which is used to throw native stack overflow
+ * exception if the guard boundary is reached. Developer should ensure
+ * that enough guard bytes are kept.
+ *
+ * @param exec_env the execution environment
+ * @param native_stack_boundary the user data to be set
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_set_native_stack_boundary(wasm_exec_env_t exec_env,
+                                       uint8_t *native_stack_boundary);
+
+/**
+ * Set the instruction count limit to the execution environment.
+ * By default the instruction count limit is -1, which means no limit.
+ * However, if the instruction count limit is set to a positive value,
+ * the execution will be terminated when the instruction count reaches
+ * the limit.
+ *
+ * @param exec_env the execution environment
+ * @param instruction_count the instruction count limit
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_set_instruction_count_limit(wasm_exec_env_t exec_env,
+                                         int instruction_count);
+
+/**
  * Dump runtime memory consumption, including:
  *     Exec env memory consumption
  *     WASM module memory consumption
@@ -2109,6 +2346,92 @@ wasm_runtime_detect_native_stack_overflow_size(wasm_exec_env_t exec_env,
  */
 WASM_RUNTIME_API_EXTERN bool
 wasm_runtime_is_underlying_binary_freeable(const wasm_module_t module);
+
+/**
+ * Create a shared heap
+ *
+ * @param init_args the initialization arguments
+ * @return the shared heap created
+ */
+WASM_RUNTIME_API_EXTERN wasm_shared_heap_t
+wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args);
+
+/**
+ * This function links two shared heap(lists), `head` and `body` in to a single
+ * shared heap list, where `head` becomes the new shared heap list head. The
+ * shared heap list remains one continuous shared heap in wasm app's point of
+ * view.  At most one shared heap in shared heap list can be dynamically
+ * allocated, the rest have to be the pre-allocated shared heap. *
+ *
+ * @param head The head of the shared heap chain.
+ * @param body The body of the shared heap chain to be appended.
+ * @return The new head of the shared heap chain. NULL if failed.
+ */
+WASM_RUNTIME_API_EXTERN wasm_shared_heap_t
+wasm_runtime_chain_shared_heaps(wasm_shared_heap_t head,
+                                wasm_shared_heap_t body);
+
+/**
+ * This function unchains the shared heaps from the given head. If
+ * `entire_chain` is true, it will unchain the entire chain of shared heaps.
+ * Otherwise, it will unchain only the first shared heap in the chain.
+ *
+ * @param head The head of the shared heap chain.
+ * @param entire_chain A boolean flag indicating whether to unchain the entire
+ * chain.
+ * @return The new head of the shared heap chain. Or the last shared heap in the
+ * chain if `entire_chain` is true.
+ */
+wasm_shared_heap_t
+wasm_runtime_unchain_shared_heaps(wasm_shared_heap_t head, bool entire_chain);
+
+/**
+ * Attach a shared heap, it can be the head of shared heap chain, in that case,
+ * attach the shared heap chain, to a module instance
+ *
+ * @param module_inst the module instance
+ * @param shared_heap the shared heap
+ * @return true if success, false if failed
+ */
+WASM_RUNTIME_API_EXTERN bool
+wasm_runtime_attach_shared_heap(wasm_module_inst_t module_inst,
+                                wasm_shared_heap_t shared_heap);
+
+/**
+ * Detach a shared heap from a module instance
+ *
+ * @param module_inst the module instance
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_detach_shared_heap(wasm_module_inst_t module_inst);
+
+/**
+ * Allocate memory from a shared heap, or the non-preallocated shared heap from
+ * the shared heap chain
+ *
+ * @param module_inst the module instance
+ * @param size required memory size
+ * @param p_native_addr native address of allocated memory
+ *
+ * @return return the allocated memory address, which reuses part of the wasm
+ * address space and is in the range of [UINT32 - shared_heap_size + 1, UINT32]
+ * (when the wasm memory is 32-bit) or [UINT64 - shared_heap_size + 1, UINT64]
+ * (when the wasm memory is 64-bit). Note that it is not an absolute address.
+ *         Return non-zero if success, zero if failed.
+ */
+WASM_RUNTIME_API_EXTERN uint64_t
+wasm_runtime_shared_heap_malloc(wasm_module_inst_t module_inst, uint64_t size,
+                                void **p_native_addr);
+
+/**
+ * Free the memory allocated from shared heap, or the non-preallocated shared
+ * heap from the shared heap chain
+ *
+ * @param module_inst the module instance
+ * @param ptr the offset in wasm app
+ */
+WASM_RUNTIME_API_EXTERN void
+wasm_runtime_shared_heap_free(wasm_module_inst_t module_inst, uint64_t ptr);
 
 #ifdef __cplusplus
 }
