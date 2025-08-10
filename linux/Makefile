@@ -48,8 +48,8 @@ LIBS := \
 	libzip-openssl.a \
 	libcurl-mbedtls.a \
 	libzip-mbedtls.a \
-	libvmlib-release.a \
-	libvmlib-debug.a
+	libiwasm-release.a \
+	libiwasm-debug.a
 
 
 ifndef ARCH
@@ -123,13 +123,13 @@ $(PREFIX)/lib/libsqlite3.a: $(MAKE_ROOT)sqlite.mk
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libidn2.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
-$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libidn2.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
-$(PREFIX)/lib/libcurl-gnutls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libidn2.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-gnutls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libidn2.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=gnutls
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
@@ -156,7 +156,7 @@ $(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
 $(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/libz.a
+$(PREFIX)/lib/libiwasm-release.a $(PREFIX)/lib/libiwasm-debug.a: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/libz.a
 	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all

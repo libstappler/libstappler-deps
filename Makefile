@@ -79,81 +79,82 @@ clean:
 
 # http://www.ijg.org/
 $(SRC_ROOT)/jpeg: prepare
-	$(call unpack_tar, http://ijg.org/files/jpegsrc.v9f.tar.gz, jpeg) # revised: 10 feb 2025
+	$(call unpack_tar, http://ijg.org/files/jpegsrc.v9f.tar.gz, jpeg) # revised: 11 aug 2025
 
 # http://www.libpng.org/pub/png/libpng.html
 $(SRC_ROOT)/libpng: prepare
-	$(call unpack_tar, http://prdownloads.sourceforge.net/libpng/libpng-1.6.45.tar.xz, libpng) # revised: 10 feb 2025
+	$(call unpack_tar, http://prdownloads.sourceforge.net/libpng/libpng-1.6.50.tar.xz, libpng) # revised: 11 aug 2025
 
 # https://sourceforge.net/projects/giflib/files/latest/download
 $(SRC_ROOT)/giflib: prepare
-	$(call unpack_tar, https://altushost-swe.dl.sourceforge.net/project/giflib/giflib-5.2.2.tar.gz, giflib) # revised: 10 feb 2025
+	$(call unpack_tar, https://altushost-swe.dl.sourceforge.net/project/giflib/giflib-5.2.2.tar.gz, giflib) # revised: 11 aug 2025
 
 # https://storage.googleapis.com/downloads.webmproject.org/releases/webp/index.html
 $(SRC_ROOT)/libwebp: prepare
-	$(call unpack_tar, https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.5.0.tar.gz, libwebp) # revised: 10 feb 2025
+	$(call unpack_tar, https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.6.0.tar.gz, libwebp) # revised: 11 aug 2025
 
 # https://github.com/google/brotli/releases
 $(SRC_ROOT)/brotli: prepare
-	$(call unpack_tar, https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz, brotli) # revised: 10 feb 2025
+	$(call unpack_tar, https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz, brotli) # revised: 11 aug 2025
 
 # https://github.com/Mbed-TLS/mbedtls/releases
 $(SRC_ROOT)/mbedtls: prepare
-	$(call unpack_tar, https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.1/mbedtls-3.6.1.tar.bz2, mbedtls) # revised: 10 feb 2025
+	$(call unpack_tar, https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.4/mbedtls-3.6.4.tar.bz2, mbedtls) # revised: 11 aug 2025
 
 # https://github.com/ngtcp2/nghttp3/releases
 $(SRC_ROOT)/nghttp3: prepare
-	$(call unpack_tar, https://github.com/ngtcp2/nghttp3/releases/download/v1.7.0/nghttp3-1.7.0.tar.bz2, nghttp3) # revised: 10 feb 2025
+	$(call unpack_tar, https://github.com/ngtcp2/nghttp3/releases/download/v1.11.0/nghttp3-1.11.0.tar.xz, nghttp3) # revised: 11 aug 2025
 
 # https://curl.se/download.html
 $(SRC_ROOT)/curl: prepare
-	$(call unpack_tar, https://curl.se/download/curl-8.12.0.tar.xz, curl) # revised: 10 feb 2025
+	$(call unpack_tar, https://curl.se/download/curl-8.15.0.tar.xz, curl) # revised: 11 aug 2025
 
 # https://download.savannah.gnu.org/releases/freetype/?C=M&O=D
 $(SRC_ROOT)/freetype: prepare
-	$(call unpack_tar, https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz, freetype) # revised: 10 feb 2025
+	$(call unpack_tar, https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz, freetype) # revised: 11 aug 2025
 
 # https://www.sqlite.org/download.html
 $(SRC_ROOT)/sqlite: prepare
 	@$(MKDIR) $(SRC_ROOT) $(TMP_DIR)
-	cd $(TMP_DIR); $(WGET) https://www.sqlite.org/2025/sqlite-amalgamation-3490000.zip # revised: 10 feb 2025
-	cd $(TMP_DIR); unzip sqlite-amalgamation-3490000.zip -d .
-	rm $(TMP_DIR)/sqlite-amalgamation-3490000.zip
-	mv -f $(TMP_DIR)/sqlite-amalgamation-3490000 $(SRC_ROOT)/sqlite
+	cd $(TMP_DIR); $(WGET) https://www.sqlite.org/2025/sqlite-amalgamation-3500400.zip # revised: 11 aug 2025
+	cd $(TMP_DIR); unzip sqlite-amalgamation-3500400.zip -d .
+	rm $(TMP_DIR)/sqlite-amalgamation-3500400.zip
+	mv -f $(TMP_DIR)/sqlite-amalgamation-3500400 $(SRC_ROOT)/sqlite
 
 # https://github.com/SBKarr/libuidna
 $(SRC_ROOT)/libuidna: prepare
 	@$(MKDIR) $(SRC_ROOT)
 	rm -rf $(SRC_ROOT)/libuidna
-	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 10 feb 2025
+	cd $(SRC_ROOT); git clone https://github.com/SBKarr/libuidna.git $(SRC_ROOT)/libuidna # use upstream: 11 aug 2025
 
 # https://libzip.org/download/
 $(SRC_ROOT)/libzip: prepare
-	$(call unpack_tar, https://libzip.org/download/libzip-1.11.3.tar.xz, libzip) # revised: 10 feb 2025
+	$(call unpack_tar, https://libzip.org/download/libzip-1.11.4.tar.xz, libzip) # revised: 11 aug 2025
 
 # https://www.zlib.net/
 $(SRC_ROOT)/zlib: prepare
-	$(call unpack_tar, https://www.zlib.net/zlib-1.3.1.tar.gz, zlib) # revised: 10 feb 2025
+	$(call unpack_tar, https://www.zlib.net/zlib-1.3.1.tar.gz, zlib) # revised: 11 aug 2025
 
 # https://openssl-library.org/source/index.html
 $(SRC_ROOT)/openssl: prepare
-	$(call unpack_tar, https://github.com/openssl/openssl/releases/download/openssl-3.3.2/openssl-3.3.2.tar.gz, openssl) # revised: 10 feb 2025
+	$(call unpack_tar, https://github.com/openssl/openssl/releases/download/openssl-3.5.2/openssl-3.5.2.tar.gz, openssl) # revised: 11 aug 2025
 	cp -f replacements/openssl/async_posix.c $(SRC_ROOT)/openssl/crypto/async/arch/async_posix.c
 
 # https://github.com/gost-engine/engine
 $(SRC_ROOT)/openssl-gost-engine: prepare
 	@$(MKDIR) $(SRC_ROOT)
 	rm -rf $(SRC_ROOT)/openssl-gost-engine
-	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch v3.0.3 https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 10 feb 2025
+	cd $(SRC_ROOT); git clone  --recurse-submodules https://github.com/gost-engine/engine.git --depth 1 openssl-gost-engine # revised: 11 aug 2025
 	cp -f replacements/openssl-gost-engine/CMakeLists.txt $(SRC_ROOT)/openssl-gost-engine
 
 # https://github.com/bytecodealliance/wasm-micro-runtime
 $(SRC_ROOT)/wasm-micro-runtime: prepare
 	@$(MKDIR) $(SRC_ROOT)
 	rm -rf $(SRC_ROOT)/wasm-micro-runtime
-	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch WAMR-2.1.2 https://github.com/bytecodealliance/wasm-micro-runtime.git --depth 1 wasm-micro-runtime # revised: 10 feb 2025
-	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0001-Initial-e2k-support.patch
-	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0002-Windows-clang-fixes.patch
+	cd $(SRC_ROOT); git clone  --recurse-submodules  --branch WAMR-2.4.1 https://github.com/bytecodealliance/wasm-micro-runtime.git --depth 1 wasm-micro-runtime # revised: 10 feb 2025
+
+#	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0001-Initial-e2k-support.patch
+#	cd $(SRC_ROOT)/wasm-micro-runtime; git apply ../../replacements/wamr/0002-Windows-clang-fixes.patch
 
 # Inject Russia Ministry of Digital Development certificates
 # https://curl.se/ca

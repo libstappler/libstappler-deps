@@ -84,14 +84,14 @@ $(PREFIX)/lib/libvmlib-release.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release
-	cp -f $(LIBNAME)/libvmlib.a $(PREFIX)/lib/libvmlib-release.a
+	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-release.a
 	rm -rf $(LIBNAME)
 
 $(PREFIX)/lib/libvmlib-debug.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Debug
-	cp -f $(LIBNAME)/libvmlib.a $(PREFIX)/lib/libvmlib-debug.a
+	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-debug.a
 	rm -rf $(LIBNAME)
 
 all: $(INCLUDES) $(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a
