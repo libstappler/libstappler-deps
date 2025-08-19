@@ -163,21 +163,27 @@ $(SRC_ROOT)/wasm-micro-runtime: prepare
 replacements/curl/cacert.pem: prepare $(LIBS_MAKE_FILE)
 	@$(MKDIR) replacements/curl
 	cd $(TMP_DIR); wget https://curl.se/ca/cacert-2024-12-31.pem # revised: 10 feb 2025
+	printf "\nhttps://www.gosuslugi.ru/crt - Root\n====================\n" > $(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt
 	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt
+	printf "\nhttps://www.gosuslugi.ru/crt - Sub\n====================\n" > $(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt
 	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt
+	printf "\nhttps://www.gosuslugi.ru/crt - Sub 2024\n====================\n" > $(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt.txt
 	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_2024_pem.crt
-	sed -i '1s;^;\nhttps://www.gosuslugi.ru/crt - Root\n====================\n;' $(TMP_DIR)/russian_trusted_root_ca_pem.crt
-	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub\n====================\n;' $(TMP_DIR)/russian_trusted_sub_ca_pem.crt
-	sed -i '1s;^;\n\nhttps://www.gosuslugi.ru/crt - Sub 2024\n====================\n;' $(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt
 	cd replacements/curl; cat \
 		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt > cacert.pem
 	@rm \
 		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt \
+		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt
 
 # https://github.com/Jake-Shadle/xwin/releases

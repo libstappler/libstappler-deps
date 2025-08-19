@@ -81,20 +81,20 @@ $(PREFIX)/include/wamr/lib_export.h:
 	mkdir -p $(PREFIX)/include/wamr
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/core/iwasm/include/lib_export.h $(PREFIX)/include/wamr/lib_export.h
 
-$(PREFIX)/lib/libvmlib-release.a:
+$(PREFIX)/lib/libiwasm-release.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release
 	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-release.a
 	rm -rf $(LIBNAME)
 
-$(PREFIX)/lib/libvmlib-debug.a:
+$(PREFIX)/lib/libiwasm-debug.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Debug
 	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-debug.a
 	rm -rf $(LIBNAME)
 
-all: $(INCLUDES) $(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a
+all: $(INCLUDES) $(PREFIX)/lib/libiwasm-release.a $(PREFIX)/lib/libiwasm-debug.a
 
 .PHONY: all

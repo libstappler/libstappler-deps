@@ -1,4 +1,5 @@
 # Copyright (c) 2024 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2025 Stappler Team <admin@stappler.org>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,7 @@ include configure.mk
 
 CONFIGURE_ARGS := \
 	$(CONFIGURE_CMAKE) \
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 	-DWAMR_BUILD_PLATFORM=darwin \
 	-DWAMR_BUILD_INTERP=1 \
 	-DWAMR_BUILD_JIT=0 \
@@ -78,20 +80,20 @@ $(PREFIX)/include/wamr/lib_export.h:
 	mkdir -p $(PREFIX)/include/wamr
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/core/iwasm/include/lib_export.h $(PREFIX)/include/wamr/lib_export.h
 
-$(PREFIX)/lib/libvmlib-release.a:
+$(PREFIX)/lib/libiwasm-release.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Release
-	cp -f $(LIBNAME)/libvmlib.a $(PREFIX)/lib/libvmlib-release.a
+	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-release.a
 	rm -rf $(LIBNAME)
 
-$(PREFIX)/lib/libvmlib-debug.a:
+$(PREFIX)/lib/libiwasm-debug.a:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); cmake  --build . --config Debug
-	cp -f $(LIBNAME)/libvmlib.a $(PREFIX)/lib/libvmlib-debug.a
+	cp -f $(LIBNAME)/libiwasm.a $(PREFIX)/lib/libiwasm-debug.a
 	rm -rf $(LIBNAME)
 
-all: $(INCLUDES) $(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a
+all: $(INCLUDES) $(PREFIX)/lib/libiwasm-release.a $(PREFIX)/lib/libiwasm-debug.a
 
 .PHONY: all

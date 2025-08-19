@@ -1,4 +1,5 @@
 # Copyright (c) 2024 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2025 Stappler Team <admin@stappler.org>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +36,6 @@ LIBS := \
 	libwebp.a \
 	libbrotlienc.a \
 	libfreetype.a \
-	libbacktrace.a \
 	libmbedtls.a \
 	libnghttp3.a \
 	libssl.a \
@@ -44,8 +44,8 @@ LIBS := \
 	libcurl-openssl.a \
 	libzip-mbedtls.a \
 	libzip-openssl.a \
-	libvmlib-release.a \
-	libvmlib-debug.a
+	libiwasm-release.a \
+	libiwasm-debug.a
 
 CC := clang
 CXX := clang++
@@ -53,7 +53,7 @@ ARCH_CFLAGS :=
 
 OPT := -O3 -fPIC -DPIC
 
-OS_VERSION_TARGET := 11.0
+OS_VERSION_TARGET := 14.0
 
 PREFIX := $(MAKE_ROOT)$(ARCH)
 LIB_SRC_DIR := $(realpath $(MAKE_ROOT)../src)
@@ -83,17 +83,14 @@ $(PREFIX)/lib/libwebp.a: $(MAKE_ROOT)libwebp.mk $(PREFIX)/lib/libpng16.a $(PREFI
 $(PREFIX)/lib/libfreetype.a: $(MAKE_ROOT)freetype.mk $(PREFIX)/lib/libbrotlienc.a $(PREFIX)/lib/libpng16.a
 	$(MAKE) -f $(MAKE_ROOT)freetype.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libbacktrace.a: $(MAKE_ROOT)libbacktrace.mk
-	$(MAKE) -f $(MAKE_ROOT)libbacktrace.mk $(FORWARD_VARS)
-
 # Actually, use libuidna to mimic libidn2
 $(PREFIX)/lib/libidn2.a: $(MAKE_ROOT)uidna.mk
 	$(MAKE) -f $(MAKE_ROOT)uidna.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-openssl.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
-$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a $(PREFIX)/lib/libbacktrace.a
+$(PREFIX)/lib/libcurl-mbedtls.a: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/libmbedtls.a
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
 $(PREFIX)/lib/libmbedtls.a: $(MAKE_ROOT)mbedtls.mk
@@ -117,7 +114,7 @@ $(PREFIX)/lib/libssl.a: $(MAKE_ROOT)openssl.mk
 $(PREFIX)/lib/libgost.a: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/libssl.a
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/libvmlib-release.a $(PREFIX)/lib/libvmlib-debug.a: $(MAKE_ROOT)wamr.mk
+$(PREFIX)/lib/libiwasm-release.a $(PREFIX)/lib/libiwasm-debug.a: $(MAKE_ROOT)wamr.mk
 	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
@@ -133,11 +130,11 @@ clean:
 
 x86_64:
 	$(MKDIR) x86_64
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 TARGET=x86_64-apple-macos11
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 TARGET=x86_64-apple-macos14
 
 arm64:
 	$(MKDIR) arm64
-	$(MAKE) -f $(THIS_FILE) ARCH=arm64 TARGET=arm64-apple-macos11
+	$(MAKE) -f $(THIS_FILE) ARCH=arm64 TARGET=arm64-apple-macos14
 
 .PHONY: all clean x86_64 arm64
 

@@ -1,4 +1,5 @@
 # Copyright (c) 2023 Stappler LLC <admin@stappler.dev>
+# Copyright (c) 2025 Stappler Team <admin@stappler.org>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +29,8 @@ all:
 	rm -rf $(LIBNAME)
 	cp -r $(LIB_SRC_DIR)/$(LIBNAME) $(LIBNAME)
 	cd $(LIBNAME); \
-		cmake $(CONFIGURE_CMAKE) -DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
+		cmake $(CONFIGURE_CMAKE) -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+			-DOPENSSL_USE_STATIC_LIBS=TRUE -DOPENSSL_ROOT_DIR=$(PREFIX) $(LIB_SRC_DIR)/$(LIBNAME); \
 		make gost_engine_static
 	mv -f $(LIBNAME)/libgost.a $(PREFIX)/lib/libgost.a 
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/gost-engine.h $(PREFIX)/include
