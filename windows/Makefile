@@ -82,9 +82,8 @@ LIBS := \
 	nghttp3.lib \
 	curl-mbedtls.lib \
 	curl-openssl.lib \
-	vmlib-release.lib \
-	vmlib-debug.lib
-
+	iwasm-release.lib \
+	iwasm-debug.lib
 
 ifdef RELEASE
 PREFIX := $(MAKE_ROOT)$(ARCH)/release
@@ -143,13 +142,13 @@ $(PREFIX)/lib/ssl.lib: $(MAKE_ROOT)openssl.mk
 $(PREFIX)/lib/gost.lib: $(MAKE_ROOT)gost.mk $(PREFIX)/lib/ssl.lib
 	$(MAKE) -f $(MAKE_ROOT)gost.mk $(FORWARD_VARS)
 
-$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/backtrace.lib $(PREFIX)/lib/nghttp3.lib
+$(PREFIX)/lib/curl-openssl.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/ssl.lib $(PREFIX)/lib/nghttp3.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=openssl
 
-$(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib $(PREFIX)/lib/backtrace.lib
+$(PREFIX)/lib/curl-mbedtls.lib: $(MAKE_ROOT)curl.mk $(PREFIX)/lib/mbedtls.lib
 	$(MAKE) -f $(MAKE_ROOT)curl.mk $(FORWARD_VARS) VARIANT=mbedtls
 
-$(PREFIX)/lib/vmlib-release.lib $(PREFIX)/lib/vmlib-debug.lib: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/z.lib
+$(PREFIX)/lib/iwasm-release.lib $(PREFIX)/lib/iwasm-debug.lib: $(MAKE_ROOT)wamr.mk $(PREFIX)/lib/z.lib
 	$(MAKE) -f $(MAKE_ROOT)wamr.mk $(FORWARD_VARS)
 
 .PHONY: all
@@ -167,11 +166,11 @@ clean:
 
 x86_64/debug:
 	$(MKDIR) x86_64/debug
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter MSYS_NT%,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter Msys,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64
 
 x86_64/release:
 	$(MKDIR) x86_64/release
-	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter MSYS_NT%,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64 RELEASE=1
+	$(MAKE) -f $(THIS_FILE) ARCH=x86_64 $(if $(filter Msys,$(UNAME)),,XWIN=1) TARGET=x86_64-windows-msvc ARCH_LOCAL=x64 RELEASE=1
 
 .PHONY: all x86_64/debug x86_64/release
 

@@ -55,7 +55,7 @@ LIBS = \
 UNAME := $(shell uname -a)
 
 # DO NOT use MSYS cmake - it's buggy for compiling with clang on windows
-MSYS_PREPARE := pacman --noconfirm --needed -S curl wget tar sed unzip git binutils gcc
+MSYS_PREPARE := pacman --noconfirm --needed -S curl wget tar sed unzip git binutils gcc pkg-config
 
 PREPARE := $(if $(filter MSYS_NT%,$(UNAME)),$(MSYS_PREPARE))
 

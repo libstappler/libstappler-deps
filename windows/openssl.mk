@@ -29,7 +29,7 @@ CONFIGURE := mingw-xwin-clang-x64 \
 	CC=$(CC) \
 	CXX=$(CXX) \
 	AR=$(AR) \
-	RC=x86_64-windows-windres \
+	RC=windres \
 	no-tests \
 	no-shared \
 	no-module \

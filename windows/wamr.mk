@@ -69,20 +69,20 @@ $(PREFIX)/include/wamr/lib_export.h:
 	mkdir -p $(PREFIX)/include/wamr
 	cp -f $(LIB_SRC_DIR)/$(LIBNAME)/core/iwasm/include/lib_export.h $(PREFIX)/include/wamr/lib_export.h
 
-$(PREFIX)/lib/vmlib-release.lib:
+$(PREFIX)/lib/iwasm-release.lib:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake $(CONFIGURE) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake  --build . --config Release
-	cp -f $(LIBNAME)/vmlib.lib $(PREFIX)/lib/vmlib-release.lib
+	cp -f $(LIBNAME)/iwasm.lib $(PREFIX)/lib/iwasm-release.lib
 	rm -rf $(LIBNAME)
 
-$(PREFIX)/lib/vmlib-debug.lib:
+$(PREFIX)/lib/iwasm-debug.lib:
 	@mkdir -p $(LIBNAME)
 	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake $(CONFIGURE_DEBUG) $(LIB_SRC_DIR)/$(LIBNAME)
 	cd $(LIBNAME); LDFLAGS="$(LDFLAGS) $(LIBS)" cmake  --build . --config Debug
-	cp -f $(LIBNAME)/vmlib.lib $(PREFIX)/lib/vmlib-debug.lib
+	cp -f $(LIBNAME)/iwasm.lib $(PREFIX)/lib/iwasm-debug.lib
 	rm -rf $(LIBNAME)
 
-all: $(INCLUDES) $(PREFIX)/lib/vmlib-release.lib $(PREFIX)/lib/vmlib-debug.lib
+all: $(INCLUDES) $(PREFIX)/lib/iwasm-release.lib $(PREFIX)/lib/iwasm-debug.lib
 
 .PHONY: all
