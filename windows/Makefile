@@ -74,7 +74,6 @@ LIBS := \
 	gif.lib \
 	webp.lib \
 	freetype.lib \
-	backtrace.lib \
 	sqlite3.lib \
 	mbedtls.lib \
 	zip.lib \
@@ -125,9 +124,6 @@ $(PREFIX)/lib/webp.lib: $(MAKE_ROOT)libwebp.mk $(PREFIX)/lib/png16.lib $(PREFIX)
 
 $(PREFIX)/lib/freetype.lib: $(MAKE_ROOT)freetype.mk $(PREFIX)/lib/brotlienc.lib $(PREFIX)/lib/png16.lib
 	$(MAKE) -f $(MAKE_ROOT)freetype.mk $(FORWARD_VARS)
-
-$(PREFIX)/lib/backtrace.lib: $(MAKE_ROOT)libbacktrace.mk
-	$(MAKE) -f $(MAKE_ROOT)libbacktrace.mk $(FORWARD_VARS)
 
 $(PREFIX)/lib/sqlite3.lib: $(MAKE_ROOT)sqlite.mk
 	$(MAKE) -f $(MAKE_ROOT)sqlite.mk $(FORWARD_VARS)
