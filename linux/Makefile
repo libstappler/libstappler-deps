@@ -52,7 +52,6 @@ LIBS := \
 	libiwasm-release.a \
 	libiwasm-debug.a
 
-
 ifndef ARCH
 
 ARCHS := x86_64 aarch64
@@ -100,7 +99,7 @@ ARCH_LIBS = $(addprefix $(PREFIX)/lib/,$(LIBS))
 all: $(ARCH_LIBS)
 
 $(PREFIX)/lib/libjpeg.a: $(MAKE_ROOT)jpeg.mk
-	$(MAKE) -f $(MAKE_ROOT)jpeg.mk $(FORWARD_VARS)
+	$(MAKE) -f $(MAKE_ROOT)libjpeg-turbo.mk $(FORWARD_VARS)
 
 $(PREFIX)/lib/libpng16.a: $(MAKE_ROOT)libpng.mk
 	$(MAKE) -f $(MAKE_ROOT)libpng.mk $(FORWARD_VARS)

@@ -35,6 +35,7 @@ TAR_XF = tar -xf
 
 LIBS = \
 	jpeg \
+	libjpeg-turbo \
 	libpng \
 	giflib \
 	libwebp \
@@ -76,11 +77,19 @@ all:
 	rm -rf $(TMP_DIR)
 
 clean:
-	rm -rf $(SRC_ROOT) $(XWIN_ROOT) replacements/curl/cacert.pem
+	rm -rf $(SRC_ROOT) $(XWIN_ROOT) $(TMP_DIR) replacements/curl/cacert.pem
+
+# https://www.zlib.net/
+$(SRC_ROOT)/zlib: prepare
+	$(call unpack_tar, https://www.zlib.net/zlib-1.3.1.tar.gz, zlib) # revised: 11 aug 2025
 
 # http://www.ijg.org/
 $(SRC_ROOT)/jpeg: prepare
 	$(call unpack_tar, http://ijg.org/files/jpegsrc.v9f.tar.gz, jpeg) # revised: 11 aug 2025
+
+# https://github.com/libjpeg-turbo/libjpeg-turbo/releases
+$(SRC_ROOT)/libjpeg-turbo: prepare
+	$(call unpack_tar, https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.1/libjpeg-turbo-3.1.1.tar.gz, libjpeg-turbo) # revised: 19 aug 2025
 
 # http://www.libpng.org/pub/png/libpng.html
 $(SRC_ROOT)/libpng: prepare
@@ -132,10 +141,6 @@ $(SRC_ROOT)/libuidna: prepare
 $(SRC_ROOT)/libzip: prepare
 	$(call unpack_tar, https://libzip.org/download/libzip-1.11.4.tar.xz, libzip) # revised: 11 aug 2025
 
-# https://www.zlib.net/
-$(SRC_ROOT)/zlib: prepare
-	$(call unpack_tar, https://www.zlib.net/zlib-1.3.1.tar.gz, zlib) # revised: 11 aug 2025
-
 # https://openssl-library.org/source/index.html
 $(SRC_ROOT)/openssl: prepare
 	$(call unpack_tar, https://github.com/openssl/openssl/releases/download/openssl-3.5.2/openssl-3.5.2.tar.gz, openssl) # revised: 11 aug 2025
@@ -162,7 +167,7 @@ $(SRC_ROOT)/wasm-micro-runtime: prepare
 # https://www.gosuslugi.ru/crt
 replacements/curl/cacert.pem: prepare $(LIBS_MAKE_FILE)
 	@$(MKDIR) replacements/curl
-	cd $(TMP_DIR); wget https://curl.se/ca/cacert-2024-12-31.pem # revised: 10 feb 2025
+	cd $(TMP_DIR); wget https://curl.se/ca/cacert-2025-08-12.pem # revised: 19 aug 2025
 	printf "\nhttps://www.gosuslugi.ru/crt - Root\n====================\n" > $(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt
 	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt
 	printf "\nhttps://www.gosuslugi.ru/crt - Sub\n====================\n" > $(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt
@@ -170,7 +175,7 @@ replacements/curl/cacert.pem: prepare $(LIBS_MAKE_FILE)
 	printf "\nhttps://www.gosuslugi.ru/crt - Sub 2024\n====================\n" > $(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt.txt
 	cd $(TMP_DIR); wget https://gu-st.ru/content/lending/russian_trusted_sub_ca_2024_pem.crt
 	cd replacements/curl; cat \
-		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/cacert-2025-08-12.pem \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
 		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt \
@@ -178,7 +183,7 @@ replacements/curl/cacert.pem: prepare $(LIBS_MAKE_FILE)
 		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_sub_ca_2024_pem.crt > cacert.pem
 	@rm \
-		$(TMP_DIR)/cacert-2024-12-31.pem \
+		$(TMP_DIR)/cacert-2025-08-12.pem \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt.txt \
 		$(TMP_DIR)/russian_trusted_root_ca_pem.crt \
 		$(TMP_DIR)/russian_trusted_sub_ca_pem.crt.txt \
